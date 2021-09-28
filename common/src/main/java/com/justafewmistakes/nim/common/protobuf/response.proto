@@ -1,0 +1,13 @@
+syntax = "proto3"; // PB协议版本
+
+option java_package = "com.justafewmistakes.nim.common.protobuf"; // 生成类的包名，注意：会在指定路径下按照该包名的定义来生成文件夹
+option java_outer_classname="ResponseProtocol"; // 生成类的类名，注意：下划线的命名会在编译的时候被自动改为驼峰命名
+
+message Response {
+
+  int64 responseId = 1; // 回应者的id
+  string responseMsg = 2; // 回应体的内容
+  int32 type = 3; // 回应的编码
+  int64 destination = 4; // 目的地（群的id，用户的id，服务器的id等等等等）
+
+}

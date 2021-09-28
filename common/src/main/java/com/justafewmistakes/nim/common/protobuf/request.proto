@@ -1,0 +1,13 @@
+syntax = "proto3"; // PB协议版本
+
+option java_package = "com.justafewmistakes.nim.common.protobuf"; // 生成类的包名，注意：会在指定路径下按照该包名的定义来生成文件夹
+option java_outer_classname="RequestProtocol"; // 生成类的类名，注意：下划线的命名会在编译的时候被自动改为驼峰命名
+
+message Request {
+
+  int64 requestId = 1; // 请求者的id
+  string requestMsg = 2; // 请求体的消息
+  int32 type = 3; // 请求的类型(0：确认连接，1:心跳，2：单聊，3：群聊）
+  int64 destination = 4; // 目的地（群的id，用户的id，服务器的id等等等等）
+
+}
