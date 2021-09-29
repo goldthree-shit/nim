@@ -5,13 +5,20 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.justafewmistakes.nim.common.routeprotocol.RouteHandler;
+import com.justafewmistakes.nim.common.util.HearBeatUtil;
 import com.justafewmistakes.nim.common.util.TokenUtil;
+import com.justafewmistakes.nim.gateway.kit.GatewayMsgRecorder;
+import com.justafewmistakes.nim.gateway.kit.SpringBeanFactory;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -32,12 +39,23 @@ public class BeanConfig {
     @Autowired
     private AppConfiguration appConfiguration;
 
-    @Bean
-    public LoadingCache<String, NioSocketChannel> loadingCache() {
+    @Bean("stringNioCache")
+    public LoadingCache<String, NioSocketChannel> IMServerCacheSN() {
         return CacheBuilder.newBuilder().build(new CacheLoader<String, NioSocketChannel>() {
 
             @Override
             public NioSocketChannel load(String key) throws Exception {
+                return null;
+            }
+        });
+    }
+
+    @Bean("nioStringCache")
+    public LoadingCache<NioSocketChannel, String> loadingCacheNS() {
+        return CacheBuilder.newBuilder().build(new CacheLoader<NioSocketChannel, String> () {
+
+            @Override
+            public String load(NioSocketChannel key) throws Exception {
                 return null;
             }
         });
@@ -54,6 +72,18 @@ public class BeanConfig {
         return handler;
     }
 
+    /**
+     * 通用redis操作器
+     */
+    @Bean
+    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
+        StringRedisTemplate redisTemplate = new StringRedisTemplate(factory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        redisTemplate.afterPropertiesSet();
+        return redisTemplate;
+    }
+
     @Bean
     public TokenUtil tokenUtil() {
         return new TokenUtil();
@@ -66,4 +96,14 @@ public class BeanConfig {
         return new ThreadPoolExecutor(appConfiguration.getCore(), appConfiguration.getMaxCore(),
                 1, TimeUnit.MINUTES, blockingQueue, threadFactory, new ThreadPoolExecutor.CallerRunsPolicy());
     }
+
+    /**
+     * 心跳生成工具
+     */
+    @Bean
+    public HearBeatUtil hearBeatUtil() {
+        return new HearBeatUtil(appConfiguration.getGatewayId());
+    }
+
+
 }

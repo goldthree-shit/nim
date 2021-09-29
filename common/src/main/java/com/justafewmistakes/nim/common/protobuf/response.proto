@@ -6,6 +6,7 @@ option java_outer_classname="ResponseProtocol"; // 生成类的类名，注意�
 message Response {
 
   int64 responseId = 1; // 回应者的id
+  string responseName = 5; //请求者的昵称
   string responseMsg = 2; // 回应体的内容
   int32 type = 3; // 回应的编码
   int64 destination = 4; // 目的地（群的id，用户的id，服务器的id等等等等）

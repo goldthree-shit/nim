@@ -6,8 +6,9 @@ option java_outer_classname="RequestProtocol"; // 生成类的类名，注意：
 message Request {
 
   int64 requestId = 1; // 请求者的id
+  string requestName = 5; //请求者的昵称
   string requestMsg = 2; // 请求体的消息
-  int32 type = 3; // 请求的类型(0：确认连接，1:心跳，2：单聊，3：群聊）
-  int64 destination = 4; // 目的地（群的id，用户的id，服务器的id等等等等）
+  int32 type = 3; // 请求的类型(1：确认连接，2、3:心跳，4：单聊，5：群聊，6：离线消息通知推送（要求收到的服务器发送离线消息到目前的网关））
+  int64 destination = 4; // 目的地（群的id，用户的id，服务器的id等等等等）(负数就不进行扩散，表示仅进行确认或心跳)
 
 }

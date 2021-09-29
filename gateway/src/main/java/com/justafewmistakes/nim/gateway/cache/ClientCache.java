@@ -10,4 +10,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ClientCache {
+    //TODO:客户端缓存
+
+    public boolean isClientOffline(Long ClientId) {
+        return false;
+    }
 }

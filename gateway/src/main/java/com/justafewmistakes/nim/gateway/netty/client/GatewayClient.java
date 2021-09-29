@@ -1,5 +1,6 @@
 package com.justafewmistakes.nim.gateway.netty.client;
 
+import com.justafewmistakes.nim.common.constant.Constants;
 import com.justafewmistakes.nim.common.protobuf.RequestProtocol;
 import com.justafewmistakes.nim.common.util.PrefixUtil;
 import com.justafewmistakes.nim.gateway.cache.ClientCache;
@@ -78,9 +79,10 @@ public class GatewayClient {
         Map<String, NioSocketChannel> allChannelFromCache = imServerCache.getAllChannelFromCacheAsMap();
         for(Map.Entry<String, NioSocketChannel> channel : allChannelFromCache.entrySet()) {
             RequestProtocol.Request claim = RequestProtocol.Request.newBuilder()
-                    .setDestination(-1) //TODO:destination暂时还没定
+                    .setDestination(-1) //-1
+                    .setRequestName("")
                     .setRequestId(appConfiguration.getGatewayId())
-                    .setType(0) //TODO:0是确认连接，这里等一下去做一个常量枚举，并且确认连接要让IM服务器也记录管道消息
+                    .setType(Constants.REQUEST_FOR_CONNECT) //TODO:1是确认连接，这里等一下去做一个常量枚举，并且确认连接要让IM服务器也记录管道消息
                     .setRequestMsg(appConfiguration.getGatewayName() + "已经连接")
                     .build();
             ChannelFuture future = channel.getValue().writeAndFlush(claim);
