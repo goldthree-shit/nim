@@ -10,5 +10,6 @@ message Response {
   string responseMsg = 2; // 回应体的内容
   int32 type = 3; // 回应的编码
   int64 destination = 4; // 目的地（群的id，用户的id，服务器的id等等等等）
+  string transit = 6; // 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
 
 }

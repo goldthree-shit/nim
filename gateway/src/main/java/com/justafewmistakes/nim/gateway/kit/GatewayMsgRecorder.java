@@ -33,6 +33,7 @@ import java.util.stream.Stream;
  * @author justafewmistakes
  * Date: 2021/09
  */
+// TODO：根据设计重写一下，单聊和群聊，把msg前面加上id那一些东西
 @Component
 public class GatewayMsgRecorder implements MsgRecorder {
 

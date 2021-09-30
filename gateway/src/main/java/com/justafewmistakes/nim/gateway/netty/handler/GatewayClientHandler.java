@@ -100,26 +100,53 @@ public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponsePr
      * TODO：先写在这里，客户端自己去缓存所有的数据，但是如果离线了，就由服务端缓存至多1天的数据(去redis上缓存一份元数据，连接上的不一定是同个服务器)，当客户端上线的时候，检查服务端是否有该用户的数据，有则推送后删除
      */
     @Override
+    @SuppressWarnings("all")
     protected void channelRead0(ChannelHandlerContext ctx, ResponseProtocol.Response msg) throws Exception {
-        // FIXME:临时的，也不是在这，是当服务端的时候，才会去搞(是在这，服务端获取到管道，在这从缓存中获取到对应的管道发回去）
+
+        //TODO: 发送数据的操作未完成
         int type = msg.getType();
-        // 不是pong包的时候处理，是pong包不管
-        if(type != Constants.PONG) {
-            Long senderId = msg.getResponseId(); //即为发送端的id
-            Long destination = msg.getDestination(); //即为客户端的id
-            String senderName = msg.getResponseName();
-            String message = msg.getResponseMsg();
 
-            ResponseProtocol.Response.newBuilder()
-                    .setResponseId(appConfiguration.getGatewayId())
-                    .setResponseName(senderName)
-                    .setResponseMsg(message)
-                    .setType(type)
-                    .setDestination(destination)
-                    .build();
+        // 是pong包不管，他也不可能收到ping包与确认连接包
+        if(type == Constants.PONG) {return;}
 
-            //TODO: 发送数据的操作未完成
+        long senderId = msg.getResponseId(); //即为发送端的id
+        long destination = msg.getDestination(); //即为接收端的id，发送到im服务器上的时候会变为目的网关地址+接受端id（gateway：userid）
+        String senderName = msg.getResponseName();
+        String message = msg.getResponseMsg();
+
+        // 是单聊
+        if(type == Constants.SINGLE_CHAT) {
+            return ;
         }
+
+        // 是群聊
+        if(type == Constants.GROUP_CHAT) {
+            return ;
+        }
+
+        //TODO：有离线消息的前缀，功能实现在客户端和网关，客户端会去找目前的网关要求发送离线消息到网关的服务端(destination)，
+        // 服务端会轮询出一个到服务器的管道发给IM服务器，im发给有离线消息的网关客户端(6)，网关客户端发现是要求推送离线消息，
+        // 就会将离线消息通过轮询出一个im服务器发送过去，im服务器再发送给请求的网关的客户端(7)，网关客户端通过指定的管道发回去
+        // 是要求推送离线消息请求
+        if(type == Constants.OFFLINE_MESSAGE_NEEDED) {
+
+            RequestProtocol.Request.newBuilder()
+                    .setRequestId(senderId)
+                    .setRequestName(senderName)
+                    .setType(type)
+                    .setRequestMsg("")
+                    .setTransit("")
+                    .setDestination(destination).build();
+
+
+
+        }
+
+        // 是获取离线消息推送回去请求
+        if(type == Constants.OFFLINE_MESSAGE_BACK) {
+
+        }
+
         /*
         String destination = "clientIdTest"; //客户端id，这里显然是为了测试
         String message = msg.getResponseMsg();

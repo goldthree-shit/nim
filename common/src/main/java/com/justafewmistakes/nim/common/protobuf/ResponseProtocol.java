@@ -80,6 +80,24 @@ public final class ResponseProtocol {
      * <code>int64 destination = 4;</code>
      */
     long getDestination();
+
+    /**
+     * <pre>
+     * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+     * </pre>
+     *
+     * <code>string transit = 6;</code>
+     */
+    java.lang.String getTransit();
+    /**
+     * <pre>
+     * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+     * </pre>
+     *
+     * <code>string transit = 6;</code>
+     */
+    com.google.protobuf.ByteString
+        getTransitBytes();
   }
   /**
    * Protobuf type {@code Response}
@@ -96,6 +114,7 @@ public final class ResponseProtocol {
     private Response() {
       responseName_ = "";
       responseMsg_ = "";
+      transit_ = "";
     }
 
     @java.lang.Override
@@ -147,6 +166,12 @@ public final class ResponseProtocol {
               java.lang.String s = input.readStringRequireUtf8();
 
               responseName_ = s;
+              break;
+            }
+            case 50: {
+              java.lang.String s = input.readStringRequireUtf8();
+
+              transit_ = s;
               break;
             }
             default: {
@@ -304,6 +329,48 @@ public final class ResponseProtocol {
       return destination_;
     }
 
+    public static final int TRANSIT_FIELD_NUMBER = 6;
+    private volatile java.lang.Object transit_;
+    /**
+     * <pre>
+     * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+     * </pre>
+     *
+     * <code>string transit = 6;</code>
+     */
+    public java.lang.String getTransit() {
+      java.lang.Object ref = transit_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
+      } else {
+        com.google.protobuf.ByteString bs = 
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        transit_ = s;
+        return s;
+      }
+    }
+    /**
+     * <pre>
+     * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+     * </pre>
+     *
+     * <code>string transit = 6;</code>
+     */
+    public com.google.protobuf.ByteString
+        getTransitBytes() {
+      java.lang.Object ref = transit_;
+      if (ref instanceof java.lang.String) {
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        transit_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -333,6 +400,9 @@ public final class ResponseProtocol {
       if (!getResponseNameBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 5, responseName_);
       }
+      if (!getTransitBytes().isEmpty()) {
+        com.google.protobuf.GeneratedMessageV3.writeString(output, 6, transit_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -360,6 +430,9 @@ public final class ResponseProtocol {
       if (!getResponseNameBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, responseName_);
       }
+      if (!getTransitBytes().isEmpty()) {
+        size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, transit_);
+      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -385,6 +458,8 @@ public final class ResponseProtocol {
           != other.getType()) return false;
       if (getDestination()
           != other.getDestination()) return false;
+      if (!getTransit()
+          .equals(other.getTransit())) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -408,6 +483,8 @@ public final class ResponseProtocol {
       hash = (37 * hash) + DESTINATION_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getDestination());
+      hash = (37 * hash) + TRANSIT_FIELD_NUMBER;
+      hash = (53 * hash) + getTransit().hashCode();
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -551,6 +628,8 @@ public final class ResponseProtocol {
 
         destination_ = 0L;
 
+        transit_ = "";
+
         return this;
       }
 
@@ -582,6 +661,7 @@ public final class ResponseProtocol {
         result.responseMsg_ = responseMsg_;
         result.type_ = type_;
         result.destination_ = destination_;
+        result.transit_ = transit_;
         onBuilt();
         return result;
       }
@@ -646,6 +726,10 @@ public final class ResponseProtocol {
         }
         if (other.getDestination() != 0L) {
           setDestination(other.getDestination());
+        }
+        if (!other.getTransit().isEmpty()) {
+          transit_ = other.transit_;
+          onChanged();
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -967,6 +1051,95 @@ public final class ResponseProtocol {
         onChanged();
         return this;
       }
+
+      private java.lang.Object transit_ = "";
+      /**
+       * <pre>
+       * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+       * </pre>
+       *
+       * <code>string transit = 6;</code>
+       */
+      public java.lang.String getTransit() {
+        java.lang.Object ref = transit_;
+        if (!(ref instanceof java.lang.String)) {
+          com.google.protobuf.ByteString bs =
+              (com.google.protobuf.ByteString) ref;
+          java.lang.String s = bs.toStringUtf8();
+          transit_ = s;
+          return s;
+        } else {
+          return (java.lang.String) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+       * </pre>
+       *
+       * <code>string transit = 6;</code>
+       */
+      public com.google.protobuf.ByteString
+          getTransitBytes() {
+        java.lang.Object ref = transit_;
+        if (ref instanceof String) {
+          com.google.protobuf.ByteString b = 
+              com.google.protobuf.ByteString.copyFromUtf8(
+                  (java.lang.String) ref);
+          transit_ = b;
+          return b;
+        } else {
+          return (com.google.protobuf.ByteString) ref;
+        }
+      }
+      /**
+       * <pre>
+       * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+       * </pre>
+       *
+       * <code>string transit = 6;</code>
+       */
+      public Builder setTransit(
+          java.lang.String value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  
+        transit_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+       * </pre>
+       *
+       * <code>string transit = 6;</code>
+       */
+      public Builder clearTransit() {
+        
+        transit_ = getDefaultInstance().getTransit();
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+       * </pre>
+       *
+       * <code>string transit = 6;</code>
+       */
+      public Builder setTransitBytes(
+          com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+        
+        transit_ = value;
+        onChanged();
+        return this;
+      }
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -1034,11 +1207,12 @@ public final class ResponseProtocol {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016response.proto\"l\n\010Response\022\022\n\nresponse" +
+      "\n\016response.proto\"}\n\010Response\022\022\n\nresponse" +
       "Id\030\001 \001(\003\022\024\n\014responseName\030\005 \001(\t\022\023\n\013respon" +
       "seMsg\030\002 \001(\t\022\014\n\004type\030\003 \001(\005\022\023\n\013destination" +
-      "\030\004 \001(\003B<\n(com.justafewmistakes.nim.commo" +
-      "n.protobufB\020ResponseProtocolb\006proto3"
+      "\030\004 \001(\003\022\017\n\007transit\030\006 \001(\tB<\n(com.justafewm" +
+      "istakes.nim.common.protobufB\020ResponsePro" +
+      "tocolb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1057,7 +1231,7 @@ public final class ResponseProtocol {
     internal_static_Response_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Response_descriptor,
-        new java.lang.String[] { "ResponseId", "ResponseName", "ResponseMsg", "Type", "Destination", });
+        new java.lang.String[] { "ResponseId", "ResponseName", "ResponseMsg", "Type", "Destination", "Transit", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

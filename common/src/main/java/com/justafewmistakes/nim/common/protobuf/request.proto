@@ -3,6 +3,7 @@ syntax = "proto3"; // PB协议版本
 option java_package = "com.justafewmistakes.nim.common.protobuf"; // 生成类的包名，注意：会在指定路径下按照该包名的定义来生成文件夹
 option java_outer_classname="RequestProtocol"; // 生成类的类名，注意：下划线的命名会在编译的时候被自动改为驼峰命名
 
+// 目前request和response有一些问题，response行为只在各个服务端产生（网关的服务端+IM服务器的服务端）
 message Request {
 
   int64 requestId = 1; // 请求者的id
@@ -10,5 +11,5 @@ message Request {
   string requestMsg = 2; // 请求体的消息
   int32 type = 3; // 请求的类型(1：确认连接，2、3:心跳，4：单聊，5：群聊，6：离线消息通知推送（要求收到的服务器发送离线消息到目前的网关））
   int64 destination = 4; // 目的地（群的id，用户的id，服务器的id等等等等）(负数就不进行扩散，表示仅进行确认或心跳)
-
+  string transit = 6; // 用于中转，单流/群聊 无需中转的时候为空，用于需要另一个gateway的时候。在客户端请求连接时为自己的ip+port，用于向服务器告知.离线消息时存自己所连的网关，用于发回
 }

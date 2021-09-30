@@ -16,6 +16,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -53,6 +54,9 @@ public class GatewayClient {
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor; //线程池，用于并发执行连接任务
 
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate; //用于将自己注册入redis
+
     /**
      * 获取服务端监听的地址，并且启动客户端连接上所有的地址
      */
@@ -70,6 +74,7 @@ public class GatewayClient {
 
         // 向服务器发送一个包确认一下
         successConnect();
+
     }
 
     /**
@@ -81,7 +86,8 @@ public class GatewayClient {
             RequestProtocol.Request claim = RequestProtocol.Request.newBuilder()
                     .setDestination(-1) //-1
                     .setRequestName("")
-                    .setRequestId(appConfiguration.getGatewayId())
+                    .setTransit(appConfiguration.getGatewayIp() + ":" + appConfiguration.getGatewayPort()) //确认连接要让IM服务器也记录管道消息
+                    .setRequestId(-1)
                     .setType(Constants.REQUEST_FOR_CONNECT) //TODO:1是确认连接，这里等一下去做一个常量枚举，并且确认连接要让IM服务器也记录管道消息
                     .setRequestMsg(appConfiguration.getGatewayName() + "已经连接")
                     .build();

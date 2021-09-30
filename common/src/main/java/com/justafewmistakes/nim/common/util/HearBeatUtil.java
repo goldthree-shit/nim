@@ -30,6 +30,7 @@ public class HearBeatUtil {
                 .setRequestMsg("PING")
                 .setType(Constants.PING)
                 .setDestination(-1)
+                .setTransit("")
                 .build();
     }
 
@@ -43,6 +44,7 @@ public class HearBeatUtil {
                 .setResponseMsg("PONG")
                 .setType(Constants.PONG)
                 .setDestination(-1)
+                .setTransit("")
                 .build();
     }
 }
