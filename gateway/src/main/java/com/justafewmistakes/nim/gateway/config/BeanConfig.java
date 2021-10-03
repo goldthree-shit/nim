@@ -6,6 +6,8 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.justafewmistakes.nim.common.routeprotocol.RouteHandler;
 import com.justafewmistakes.nim.common.util.HearBeatUtil;
+import com.justafewmistakes.nim.common.util.NtpUtil;
+import com.justafewmistakes.nim.common.util.OfflineMsgUtil;
 import com.justafewmistakes.nim.common.util.TokenUtil;
 import com.justafewmistakes.nim.gateway.kit.GatewayMsgRecorder;
 import com.justafewmistakes.nim.gateway.kit.SpringBeanFactory;
@@ -51,11 +53,33 @@ public class BeanConfig {
     }
 
     @Bean("nioStringCache")
-    public LoadingCache<NioSocketChannel, String> loadingCacheNS() {
+    public LoadingCache<NioSocketChannel, String> IMServerCacheNS() {
         return CacheBuilder.newBuilder().build(new CacheLoader<NioSocketChannel, String> () {
 
             @Override
             public String load(NioSocketChannel key) throws Exception {
+                return null;
+            }
+        });
+    }
+
+    @Bean("longNioClientCache")
+    public LoadingCache<Long, NioSocketChannel> ClientCacheLN() {
+        return CacheBuilder.newBuilder().build(new CacheLoader<Long, NioSocketChannel>() {
+
+            @Override
+            public NioSocketChannel load(Long key) throws Exception {
+                return null;
+            }
+        });
+    }
+
+    @Bean("nioLongClientCache")
+    public LoadingCache<NioSocketChannel, Long> ClientCacheNL() {
+        return CacheBuilder.newBuilder().build(new CacheLoader<NioSocketChannel, Long> () {
+
+            @Override
+            public Long load(NioSocketChannel key) throws Exception {
                 return null;
             }
         });
@@ -102,8 +126,15 @@ public class BeanConfig {
      */
     @Bean
     public HearBeatUtil hearBeatUtil() {
-        return new HearBeatUtil(appConfiguration.getGatewayId());
+        return new HearBeatUtil();
     }
 
+    /**
+     * 离线消息生成工具
+     */
+    @Bean
+    public OfflineMsgUtil offlineMsgUtil() {
+        return new OfflineMsgUtil();
+    }
 
 }

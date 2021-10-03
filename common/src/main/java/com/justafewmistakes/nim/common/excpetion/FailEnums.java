@@ -24,6 +24,8 @@ public enum FailEnums implements IErrorCode{
 
     USER_NOT_Login(400, "user not login"), //用户已登入
 
+    CLIENT_NOT_FOUND(500, "client not found or client unreachable"), //无法找到网关连接到的客户端
+
     GATEWAY_NOT_FOUND(500, "gateway not found or gateway unreachable"), //无法找到任何网关或网关不可达
 
     SERVER_NOT_FOUND(500, "server not found"); //无法找到任何服务器

@@ -7,9 +7,11 @@ message Response {
 
   int64 responseId = 1; // 回应者的id
   string responseName = 5; //请求者的昵称
+  int64 responseMsgId = 9; // 请求体的消息id
   string responseMsg = 2; // 回应体的内容
   int32 type = 3; // 回应的编码
+  int64 groupId = 7; //群id用于发送群聊的时候
   int64 destination = 4; // 目的地（群的id，用户的id，服务器的id等等等等）
   string transit = 6; // 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
-
+  int64 sendTime = 8; //发送的时间
 }

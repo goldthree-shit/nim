@@ -2,6 +2,7 @@ package com.justafewmistakes.nim.gateway.netty.client;
 
 import com.justafewmistakes.nim.common.constant.Constants;
 import com.justafewmistakes.nim.common.protobuf.RequestProtocol;
+import com.justafewmistakes.nim.common.util.NtpUtil;
 import com.justafewmistakes.nim.common.util.PrefixUtil;
 import com.justafewmistakes.nim.gateway.cache.ClientCache;
 import com.justafewmistakes.nim.gateway.cache.IMServerCache;
@@ -13,6 +14,9 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.apache.commons.net.ntp.NTPUDPClient;
+import org.apache.commons.net.ntp.TimeInfo;
+import org.apache.commons.net.ntp.TimeStamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +24,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -62,18 +68,18 @@ public class GatewayClient {
      */
     @PostConstruct
     public void startClient() throws ExecutionException, InterruptedException {
-        int times = 0;
-        // 获取全部的IM服务器的监听地址
-        List<String> allIMServerAddr = getAllIMServer();
-
-        // 启动客户端，并且连接上所有的服务器，无法完全连接，则无限循环
-        while(!connectToAll(allIMServerAddr)) {
-            LOGGER.error("连接所有IM服务器失败的次数[{}],进行无限重试",++times);
-            allIMServerAddr = getAllIMServer();
-        };
-
-        // 向服务器发送一个包确认一下
-        successConnect();
+//        int times = 0;
+//        // 获取全部的IM服务器的监听地址
+//        List<String> allIMServerAddr = getAllIMServer();
+//
+//        // 启动客户端，并且连接上所有的服务器，无法完全连接，则无限循环
+//        while(!connectToAll(allIMServerAddr)) {
+//            LOGGER.error("连接所有IM服务器失败的次数[{}],进行无限重试",++times);
+//            allIMServerAddr = getAllIMServer();
+//        };
+//
+//        // 向服务器发送一个包确认一下
+//        successConnect();
 
     }
 
@@ -84,10 +90,12 @@ public class GatewayClient {
         Map<String, NioSocketChannel> allChannelFromCache = imServerCache.getAllChannelFromCacheAsMap();
         for(Map.Entry<String, NioSocketChannel> channel : allChannelFromCache.entrySet()) {
             RequestProtocol.Request claim = RequestProtocol.Request.newBuilder()
+                    .setGroupId(-1)
                     .setDestination(-1) //-1
                     .setRequestName("")
                     .setTransit(appConfiguration.getGatewayIp() + ":" + appConfiguration.getGatewayPort()) //确认连接要让IM服务器也记录管道消息
                     .setRequestId(-1)
+                    .setSendTime(NtpUtil.getNtpTime())
                     .setType(Constants.REQUEST_FOR_CONNECT) //TODO:1是确认连接，这里等一下去做一个常量枚举，并且确认连接要让IM服务器也记录管道消息
                     .setRequestMsg(appConfiguration.getGatewayName() + "已经连接")
                     .build();

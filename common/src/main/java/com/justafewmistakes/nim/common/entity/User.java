@@ -1,4 +1,4 @@
-package com.justafewmistakes.nim.route.entity;
+package com.justafewmistakes.nim.common.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;

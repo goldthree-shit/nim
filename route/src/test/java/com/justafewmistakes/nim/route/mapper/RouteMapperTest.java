@@ -1,6 +1,6 @@
 package com.justafewmistakes.nim.route.mapper;
 
-import com.justafewmistakes.nim.route.entity.User;
+import com.justafewmistakes.nim.common.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

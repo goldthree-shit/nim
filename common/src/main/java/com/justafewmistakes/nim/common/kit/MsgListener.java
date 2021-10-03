@@ -6,6 +6,7 @@ package com.justafewmistakes.nim.common.kit;
  * @author justafewmistakes
  * Date: 2021/09
  */
+@Deprecated
 public interface MsgListener {
 
     /**

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.justafewmistakes.nim.gateway.mapper.GroupMapper">
+
+    <select id="allGroupUser" resultType="java.lang.Long" parameterType="java.lang.Long">
+        select userId
+        from group_user
+        where groupId = #{groupId}
+    </select>
+</mapper>

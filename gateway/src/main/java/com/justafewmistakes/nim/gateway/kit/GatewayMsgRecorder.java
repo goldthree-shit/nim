@@ -33,8 +33,9 @@ import java.util.stream.Stream;
  * @author justafewmistakes
  * Date: 2021/09
  */
-// TODO：根据设计重写一下，单聊和群聊，把msg前面加上id那一些东西
+// TODO：根据设计重写一下，单聊和群聊，把msg前面加上id那一些东西,改为preMsg
 @Component
+@Deprecated
 public class GatewayMsgRecorder implements MsgRecorder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayMsgRecorder.class);
@@ -55,10 +56,10 @@ public class GatewayMsgRecorder implements MsgRecorder {
     private AppConfiguration appConfiguration;
 
     @Override
-    public void record(String preDestination, String msg) {
+    public void record(String preDestination, String preMsg) {
         startRecorder();
         try {
-            blockingQueue.put(new String[]{preDestination, msg});
+            blockingQueue.put(new String[]{preDestination, preMsg});
         } catch (InterruptedException e) {
             LOGGER.error("向异步记录队列中put数据时被打断,异常消息为:",e);
         }
@@ -141,10 +142,13 @@ public class GatewayMsgRecorder implements MsgRecorder {
     /**
      * 写入操作
      * preDestination是离线的客户端的id与前缀
+     * preMsg包括了发送者的信息
+     * 单聊：""#uid#uname#msg
+     * 群聊：群id#uid#uname#msg
      * TODO:要想redis中也写入元数据
      */
-    private void doWriteAsync(String preDestination, String msg) {
-        LOGGER.info("正在异步进行记录该数据：[{}]", msg);
+    private void doWriteAsync(String preDestination, String preMsg) {
+        LOGGER.info("正在异步进行记录该数据：[{}]", preMsg);
         LocalDate now = LocalDate.now();
         int year = now.getYear(), month = now.getMonthValue(), day = now.getDayOfMonth();
 
@@ -168,9 +172,9 @@ public class GatewayMsgRecorder implements MsgRecorder {
             // 将离线客户端的id和记录他离线消息的网关联系起来放入redis
             redisTemplate.opsForValue().set(preDestination, appConfiguration.getGatewayIp() + ":" + appConfiguration.getGatewayPort());
             // 写入本地文件
-            Files.write(file, Collections.singletonList(msg), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+            Files.write(file, Collections.singletonList(preMsg), StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException e) {
-            LOGGER.error("io错误，无法创建文件用于记录[{}]的离线消息[{}]", destination, msg);
+            LOGGER.error("io错误，无法创建文件用于记录[{}]的离线消息[{}]", destination, preMsg);
         }
     }
 }

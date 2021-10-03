@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
  * Duty: 心跳工具包，用于生成心跳
  *
@@ -15,22 +17,21 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class HearBeatUtil {
-
-    private Long id;
 
     /**
      * 生成心跳ping包
      */
     public RequestProtocol.Request Ping() {
         return RequestProtocol.Request.newBuilder()
-                .setRequestId(id)
+                .setRequestId(-1)
+                .setGroupId(-1)
                 .setRequestName("")
                 .setRequestMsg("PING")
                 .setType(Constants.PING)
                 .setDestination(-1)
                 .setTransit("")
+                .setSendTime(NtpUtil.getNtpTime())
                 .build();
     }
 
@@ -39,12 +40,14 @@ public class HearBeatUtil {
      */
     public ResponseProtocol.Response Pong() {
         return ResponseProtocol.Response.newBuilder()
-                .setResponseId(id)
+                .setResponseId(-1)
+                .setGroupId(-1)
                 .setResponseName("")
                 .setResponseMsg("PONG")
                 .setType(Constants.PONG)
                 .setDestination(-1)
                 .setTransit("")
+                .setSendTime(NtpUtil.getNtpTime())
                 .build();
     }
 }

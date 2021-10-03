@@ -1,5 +1,7 @@
 package com.justafewmistakes.nim.common.routeprotocol;
 
+import io.netty.channel.socket.nio.NioSocketChannel;
+
 import java.util.List;
 
 /**
@@ -13,4 +15,9 @@ public interface RouteHandler {
      * @return 返回路由协议获取的网关节点（ip+端口）
      */
     String selectGateway(List<String> gatewayList);
+
+    /**
+     * 通过路由协议获取选择的im服务器节点
+     */
+    NioSocketChannel selectIMServer(List<NioSocketChannel> imServerList);
 }

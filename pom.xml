@@ -72,6 +72,13 @@
                 <version>20.0</version>
             </dependency>
 
+            <!-- ntp服务 -->
+            <dependency>
+                <groupId>commons-net</groupId>
+                <artifactId>commons-net</artifactId>
+                <version>3.8.0</version>
+            </dependency>
+
             <!-- 集成druid连接池 -->
             <dependency>
                 <groupId>com.alibaba</groupId>

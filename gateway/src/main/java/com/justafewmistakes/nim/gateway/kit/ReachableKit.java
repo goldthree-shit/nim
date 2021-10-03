@@ -1,5 +1,6 @@
 package com.justafewmistakes.nim.gateway.kit;
 
+import com.justafewmistakes.nim.gateway.cache.ClientCache;
 import com.justafewmistakes.nim.gateway.cache.IMServerCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
- * Duty:检测是否可达的组件
+ * Duty:检测是否可达的组件（客户端和im服务器）
  *
  * @author justafewmistakes
  * Date: 2021/09
@@ -27,12 +28,14 @@ public class ReachableKit {
     @Autowired
     private NacosClient nacosClient;
 
+    @Autowired
+    private ClientCache clientCache;
+
     /**
      * 验证该IM服务器是否可达，不可达则更新
-     * @param IMServer
-     * @return
+     * @param IMServer im服务器的ip+port
      */
-    private boolean isIMServerReachable(String IMServer) {
+    public boolean isIMServerReachable(String IMServer) {
         String[] addr = IMServer.split(":");
         String ip = addr[0], port = addr[1];
         Socket socket = new Socket();
@@ -52,4 +55,11 @@ public class ReachableKit {
         }
     }
 
+    /**
+     * 验证客户端是否可达（client和网关之间是否有管道连接）
+     * @param clientId 客户端的id，无前缀
+     */
+    public boolean isClientReachable(Long clientId) {
+        return clientCache.isClientOffline(clientId);
+    }
 }

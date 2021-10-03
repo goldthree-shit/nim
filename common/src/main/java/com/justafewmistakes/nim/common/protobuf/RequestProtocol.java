@@ -47,6 +47,15 @@ public final class RequestProtocol {
 
     /**
      * <pre>
+     * 请求体的消息id
+     * </pre>
+     *
+     * <code>int64 requestMsgId = 9;</code>
+     */
+    long getRequestMsgId();
+
+    /**
+     * <pre>
      * 请求体的消息
      * </pre>
      *
@@ -74,6 +83,15 @@ public final class RequestProtocol {
 
     /**
      * <pre>
+     *群id用于发送群聊的时候
+     * </pre>
+     *
+     * <code>int64 groupId = 7;</code>
+     */
+    long getGroupId();
+
+    /**
+     * <pre>
      * 目的地（群的id，用户的id，服务器的id等等等等）(负数就不进行扩散，表示仅进行确认或心跳)
      * </pre>
      *
@@ -83,7 +101,7 @@ public final class RequestProtocol {
 
     /**
      * <pre>
-     * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+     * 用于中转，单流/群聊 无需中转的时候为空，用于需要另一个gateway的时候。在客户端请求连接时为自己的ip+port，用于向服务器告知.离线消息时存自己所连的网关，用于发回
      * </pre>
      *
      * <code>string transit = 6;</code>
@@ -91,13 +109,22 @@ public final class RequestProtocol {
     java.lang.String getTransit();
     /**
      * <pre>
-     * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+     * 用于中转，单流/群聊 无需中转的时候为空，用于需要另一个gateway的时候。在客户端请求连接时为自己的ip+port，用于向服务器告知.离线消息时存自己所连的网关，用于发回
      * </pre>
      *
      * <code>string transit = 6;</code>
      */
     com.google.protobuf.ByteString
         getTransitBytes();
+
+    /**
+     * <pre>
+     *发送的时间
+     * </pre>
+     *
+     * <code>int64 sendTime = 8;</code>
+     */
+    long getSendTime();
   }
   /**
    * <pre>
@@ -176,6 +203,21 @@ public final class RequestProtocol {
               java.lang.String s = input.readStringRequireUtf8();
 
               transit_ = s;
+              break;
+            }
+            case 56: {
+
+              groupId_ = input.readInt64();
+              break;
+            }
+            case 64: {
+
+              sendTime_ = input.readInt64();
+              break;
+            }
+            case 72: {
+
+              requestMsgId_ = input.readInt64();
               break;
             }
             default: {
@@ -265,6 +307,19 @@ public final class RequestProtocol {
       }
     }
 
+    public static final int REQUESTMSGID_FIELD_NUMBER = 9;
+    private long requestMsgId_;
+    /**
+     * <pre>
+     * 请求体的消息id
+     * </pre>
+     *
+     * <code>int64 requestMsgId = 9;</code>
+     */
+    public long getRequestMsgId() {
+      return requestMsgId_;
+    }
+
     public static final int REQUESTMSG_FIELD_NUMBER = 2;
     private volatile java.lang.Object requestMsg_;
     /**
@@ -320,6 +375,19 @@ public final class RequestProtocol {
       return type_;
     }
 
+    public static final int GROUPID_FIELD_NUMBER = 7;
+    private long groupId_;
+    /**
+     * <pre>
+     *群id用于发送群聊的时候
+     * </pre>
+     *
+     * <code>int64 groupId = 7;</code>
+     */
+    public long getGroupId() {
+      return groupId_;
+    }
+
     public static final int DESTINATION_FIELD_NUMBER = 4;
     private long destination_;
     /**
@@ -337,7 +405,7 @@ public final class RequestProtocol {
     private volatile java.lang.Object transit_;
     /**
      * <pre>
-     * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+     * 用于中转，单流/群聊 无需中转的时候为空，用于需要另一个gateway的时候。在客户端请求连接时为自己的ip+port，用于向服务器告知.离线消息时存自己所连的网关，用于发回
      * </pre>
      *
      * <code>string transit = 6;</code>
@@ -356,7 +424,7 @@ public final class RequestProtocol {
     }
     /**
      * <pre>
-     * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+     * 用于中转，单流/群聊 无需中转的时候为空，用于需要另一个gateway的时候。在客户端请求连接时为自己的ip+port，用于向服务器告知.离线消息时存自己所连的网关，用于发回
      * </pre>
      *
      * <code>string transit = 6;</code>
@@ -373,6 +441,19 @@ public final class RequestProtocol {
       } else {
         return (com.google.protobuf.ByteString) ref;
       }
+    }
+
+    public static final int SENDTIME_FIELD_NUMBER = 8;
+    private long sendTime_;
+    /**
+     * <pre>
+     *发送的时间
+     * </pre>
+     *
+     * <code>int64 sendTime = 8;</code>
+     */
+    public long getSendTime() {
+      return sendTime_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -407,6 +488,15 @@ public final class RequestProtocol {
       if (!getTransitBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 6, transit_);
       }
+      if (groupId_ != 0L) {
+        output.writeInt64(7, groupId_);
+      }
+      if (sendTime_ != 0L) {
+        output.writeInt64(8, sendTime_);
+      }
+      if (requestMsgId_ != 0L) {
+        output.writeInt64(9, requestMsgId_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -437,6 +527,18 @@ public final class RequestProtocol {
       if (!getTransitBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, transit_);
       }
+      if (groupId_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(7, groupId_);
+      }
+      if (sendTime_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(8, sendTime_);
+      }
+      if (requestMsgId_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(9, requestMsgId_);
+      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -456,14 +558,20 @@ public final class RequestProtocol {
           != other.getRequestId()) return false;
       if (!getRequestName()
           .equals(other.getRequestName())) return false;
+      if (getRequestMsgId()
+          != other.getRequestMsgId()) return false;
       if (!getRequestMsg()
           .equals(other.getRequestMsg())) return false;
       if (getType()
           != other.getType()) return false;
+      if (getGroupId()
+          != other.getGroupId()) return false;
       if (getDestination()
           != other.getDestination()) return false;
       if (!getTransit()
           .equals(other.getTransit())) return false;
+      if (getSendTime()
+          != other.getSendTime()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -480,15 +588,24 @@ public final class RequestProtocol {
           getRequestId());
       hash = (37 * hash) + REQUESTNAME_FIELD_NUMBER;
       hash = (53 * hash) + getRequestName().hashCode();
+      hash = (37 * hash) + REQUESTMSGID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getRequestMsgId());
       hash = (37 * hash) + REQUESTMSG_FIELD_NUMBER;
       hash = (53 * hash) + getRequestMsg().hashCode();
       hash = (37 * hash) + TYPE_FIELD_NUMBER;
       hash = (53 * hash) + getType();
+      hash = (37 * hash) + GROUPID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getGroupId());
       hash = (37 * hash) + DESTINATION_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getDestination());
       hash = (37 * hash) + TRANSIT_FIELD_NUMBER;
       hash = (53 * hash) + getTransit().hashCode();
+      hash = (37 * hash) + SENDTIME_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getSendTime());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -630,13 +747,19 @@ public final class RequestProtocol {
 
         requestName_ = "";
 
+        requestMsgId_ = 0L;
+
         requestMsg_ = "";
 
         type_ = 0;
 
+        groupId_ = 0L;
+
         destination_ = 0L;
 
         transit_ = "";
+
+        sendTime_ = 0L;
 
         return this;
       }
@@ -666,10 +789,13 @@ public final class RequestProtocol {
         com.justafewmistakes.nim.common.protobuf.RequestProtocol.Request result = new com.justafewmistakes.nim.common.protobuf.RequestProtocol.Request(this);
         result.requestId_ = requestId_;
         result.requestName_ = requestName_;
+        result.requestMsgId_ = requestMsgId_;
         result.requestMsg_ = requestMsg_;
         result.type_ = type_;
+        result.groupId_ = groupId_;
         result.destination_ = destination_;
         result.transit_ = transit_;
+        result.sendTime_ = sendTime_;
         onBuilt();
         return result;
       }
@@ -725,6 +851,9 @@ public final class RequestProtocol {
           requestName_ = other.requestName_;
           onChanged();
         }
+        if (other.getRequestMsgId() != 0L) {
+          setRequestMsgId(other.getRequestMsgId());
+        }
         if (!other.getRequestMsg().isEmpty()) {
           requestMsg_ = other.requestMsg_;
           onChanged();
@@ -732,12 +861,18 @@ public final class RequestProtocol {
         if (other.getType() != 0) {
           setType(other.getType());
         }
+        if (other.getGroupId() != 0L) {
+          setGroupId(other.getGroupId());
+        }
         if (other.getDestination() != 0L) {
           setDestination(other.getDestination());
         }
         if (!other.getTransit().isEmpty()) {
           transit_ = other.transit_;
           onChanged();
+        }
+        if (other.getSendTime() != 0L) {
+          setSendTime(other.getSendTime());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -895,6 +1030,44 @@ public final class RequestProtocol {
         return this;
       }
 
+      private long requestMsgId_ ;
+      /**
+       * <pre>
+       * 请求体的消息id
+       * </pre>
+       *
+       * <code>int64 requestMsgId = 9;</code>
+       */
+      public long getRequestMsgId() {
+        return requestMsgId_;
+      }
+      /**
+       * <pre>
+       * 请求体的消息id
+       * </pre>
+       *
+       * <code>int64 requestMsgId = 9;</code>
+       */
+      public Builder setRequestMsgId(long value) {
+        
+        requestMsgId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 请求体的消息id
+       * </pre>
+       *
+       * <code>int64 requestMsgId = 9;</code>
+       */
+      public Builder clearRequestMsgId() {
+        
+        requestMsgId_ = 0L;
+        onChanged();
+        return this;
+      }
+
       private java.lang.Object requestMsg_ = "";
       /**
        * <pre>
@@ -1022,6 +1195,44 @@ public final class RequestProtocol {
         return this;
       }
 
+      private long groupId_ ;
+      /**
+       * <pre>
+       *群id用于发送群聊的时候
+       * </pre>
+       *
+       * <code>int64 groupId = 7;</code>
+       */
+      public long getGroupId() {
+        return groupId_;
+      }
+      /**
+       * <pre>
+       *群id用于发送群聊的时候
+       * </pre>
+       *
+       * <code>int64 groupId = 7;</code>
+       */
+      public Builder setGroupId(long value) {
+        
+        groupId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       *群id用于发送群聊的时候
+       * </pre>
+       *
+       * <code>int64 groupId = 7;</code>
+       */
+      public Builder clearGroupId() {
+        
+        groupId_ = 0L;
+        onChanged();
+        return this;
+      }
+
       private long destination_ ;
       /**
        * <pre>
@@ -1063,7 +1274,7 @@ public final class RequestProtocol {
       private java.lang.Object transit_ = "";
       /**
        * <pre>
-       * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+       * 用于中转，单流/群聊 无需中转的时候为空，用于需要另一个gateway的时候。在客户端请求连接时为自己的ip+port，用于向服务器告知.离线消息时存自己所连的网关，用于发回
        * </pre>
        *
        * <code>string transit = 6;</code>
@@ -1082,7 +1293,7 @@ public final class RequestProtocol {
       }
       /**
        * <pre>
-       * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+       * 用于中转，单流/群聊 无需中转的时候为空，用于需要另一个gateway的时候。在客户端请求连接时为自己的ip+port，用于向服务器告知.离线消息时存自己所连的网关，用于发回
        * </pre>
        *
        * <code>string transit = 6;</code>
@@ -1102,7 +1313,7 @@ public final class RequestProtocol {
       }
       /**
        * <pre>
-       * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+       * 用于中转，单流/群聊 无需中转的时候为空，用于需要另一个gateway的时候。在客户端请求连接时为自己的ip+port，用于向服务器告知.离线消息时存自己所连的网关，用于发回
        * </pre>
        *
        * <code>string transit = 6;</code>
@@ -1119,7 +1330,7 @@ public final class RequestProtocol {
       }
       /**
        * <pre>
-       * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+       * 用于中转，单流/群聊 无需中转的时候为空，用于需要另一个gateway的时候。在客户端请求连接时为自己的ip+port，用于向服务器告知.离线消息时存自己所连的网关，用于发回
        * </pre>
        *
        * <code>string transit = 6;</code>
@@ -1132,7 +1343,7 @@ public final class RequestProtocol {
       }
       /**
        * <pre>
-       * 用于中转，无需中转的时候为空，用于需要另一个gateway的时候
+       * 用于中转，单流/群聊 无需中转的时候为空，用于需要另一个gateway的时候。在客户端请求连接时为自己的ip+port，用于向服务器告知.离线消息时存自己所连的网关，用于发回
        * </pre>
        *
        * <code>string transit = 6;</code>
@@ -1145,6 +1356,44 @@ public final class RequestProtocol {
   checkByteStringIsUtf8(value);
         
         transit_ = value;
+        onChanged();
+        return this;
+      }
+
+      private long sendTime_ ;
+      /**
+       * <pre>
+       *发送的时间
+       * </pre>
+       *
+       * <code>int64 sendTime = 8;</code>
+       */
+      public long getSendTime() {
+        return sendTime_;
+      }
+      /**
+       * <pre>
+       *发送的时间
+       * </pre>
+       *
+       * <code>int64 sendTime = 8;</code>
+       */
+      public Builder setSendTime(long value) {
+        
+        sendTime_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       *发送的时间
+       * </pre>
+       *
+       * <code>int64 sendTime = 8;</code>
+       */
+      public Builder clearSendTime() {
+        
+        sendTime_ = 0L;
         onChanged();
         return this;
       }
@@ -1215,12 +1464,13 @@ public final class RequestProtocol {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\rrequest.proto\"y\n\007Request\022\021\n\trequestId\030" +
-      "\001 \001(\003\022\023\n\013requestName\030\005 \001(\t\022\022\n\nrequestMsg" +
-      "\030\002 \001(\t\022\014\n\004type\030\003 \001(\005\022\023\n\013destination\030\004 \001(" +
-      "\003\022\017\n\007transit\030\006 \001(\tB;\n(com.justafewmistak" +
-      "es.nim.common.protobufB\017RequestProtocolb" +
-      "\006proto3"
+      "\n\rrequest.proto\"\262\001\n\007Request\022\021\n\trequestId" +
+      "\030\001 \001(\003\022\023\n\013requestName\030\005 \001(\t\022\024\n\014requestMs" +
+      "gId\030\t \001(\003\022\022\n\nrequestMsg\030\002 \001(\t\022\014\n\004type\030\003 " +
+      "\001(\005\022\017\n\007groupId\030\007 \001(\003\022\023\n\013destination\030\004 \001(" +
+      "\003\022\017\n\007transit\030\006 \001(\t\022\020\n\010sendTime\030\010 \001(\003B;\n(" +
+      "com.justafewmistakes.nim.common.protobuf" +
+      "B\017RequestProtocolb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1239,7 +1489,7 @@ public final class RequestProtocol {
     internal_static_Request_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Request_descriptor,
-        new java.lang.String[] { "RequestId", "RequestName", "RequestMsg", "Type", "Destination", "Transit", });
+        new java.lang.String[] { "RequestId", "RequestName", "RequestMsgId", "RequestMsg", "Type", "GroupId", "Destination", "Transit", "SendTime", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)

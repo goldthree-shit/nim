@@ -47,6 +47,15 @@ public final class ResponseProtocol {
 
     /**
      * <pre>
+     * 请求体的消息id
+     * </pre>
+     *
+     * <code>int64 responseMsgId = 9;</code>
+     */
+    long getResponseMsgId();
+
+    /**
+     * <pre>
      * 回应体的内容
      * </pre>
      *
@@ -74,6 +83,15 @@ public final class ResponseProtocol {
 
     /**
      * <pre>
+     *群id用于发送群聊的时候
+     * </pre>
+     *
+     * <code>int64 groupId = 7;</code>
+     */
+    long getGroupId();
+
+    /**
+     * <pre>
      * 目的地（群的id，用户的id，服务器的id等等等等）
      * </pre>
      *
@@ -98,6 +116,15 @@ public final class ResponseProtocol {
      */
     com.google.protobuf.ByteString
         getTransitBytes();
+
+    /**
+     * <pre>
+     *发送的时间
+     * </pre>
+     *
+     * <code>int64 sendTime = 8;</code>
+     */
+    long getSendTime();
   }
   /**
    * Protobuf type {@code Response}
@@ -172,6 +199,21 @@ public final class ResponseProtocol {
               java.lang.String s = input.readStringRequireUtf8();
 
               transit_ = s;
+              break;
+            }
+            case 56: {
+
+              groupId_ = input.readInt64();
+              break;
+            }
+            case 64: {
+
+              sendTime_ = input.readInt64();
+              break;
+            }
+            case 72: {
+
+              responseMsgId_ = input.readInt64();
               break;
             }
             default: {
@@ -261,6 +303,19 @@ public final class ResponseProtocol {
       }
     }
 
+    public static final int RESPONSEMSGID_FIELD_NUMBER = 9;
+    private long responseMsgId_;
+    /**
+     * <pre>
+     * 请求体的消息id
+     * </pre>
+     *
+     * <code>int64 responseMsgId = 9;</code>
+     */
+    public long getResponseMsgId() {
+      return responseMsgId_;
+    }
+
     public static final int RESPONSEMSG_FIELD_NUMBER = 2;
     private volatile java.lang.Object responseMsg_;
     /**
@@ -314,6 +369,19 @@ public final class ResponseProtocol {
      */
     public int getType() {
       return type_;
+    }
+
+    public static final int GROUPID_FIELD_NUMBER = 7;
+    private long groupId_;
+    /**
+     * <pre>
+     *群id用于发送群聊的时候
+     * </pre>
+     *
+     * <code>int64 groupId = 7;</code>
+     */
+    public long getGroupId() {
+      return groupId_;
     }
 
     public static final int DESTINATION_FIELD_NUMBER = 4;
@@ -371,6 +439,19 @@ public final class ResponseProtocol {
       }
     }
 
+    public static final int SENDTIME_FIELD_NUMBER = 8;
+    private long sendTime_;
+    /**
+     * <pre>
+     *发送的时间
+     * </pre>
+     *
+     * <code>int64 sendTime = 8;</code>
+     */
+    public long getSendTime() {
+      return sendTime_;
+    }
+
     private byte memoizedIsInitialized = -1;
     @java.lang.Override
     public final boolean isInitialized() {
@@ -403,6 +484,15 @@ public final class ResponseProtocol {
       if (!getTransitBytes().isEmpty()) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 6, transit_);
       }
+      if (groupId_ != 0L) {
+        output.writeInt64(7, groupId_);
+      }
+      if (sendTime_ != 0L) {
+        output.writeInt64(8, sendTime_);
+      }
+      if (responseMsgId_ != 0L) {
+        output.writeInt64(9, responseMsgId_);
+      }
       unknownFields.writeTo(output);
     }
 
@@ -433,6 +523,18 @@ public final class ResponseProtocol {
       if (!getTransitBytes().isEmpty()) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(6, transit_);
       }
+      if (groupId_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(7, groupId_);
+      }
+      if (sendTime_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(8, sendTime_);
+      }
+      if (responseMsgId_ != 0L) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeInt64Size(9, responseMsgId_);
+      }
       size += unknownFields.getSerializedSize();
       memoizedSize = size;
       return size;
@@ -452,14 +554,20 @@ public final class ResponseProtocol {
           != other.getResponseId()) return false;
       if (!getResponseName()
           .equals(other.getResponseName())) return false;
+      if (getResponseMsgId()
+          != other.getResponseMsgId()) return false;
       if (!getResponseMsg()
           .equals(other.getResponseMsg())) return false;
       if (getType()
           != other.getType()) return false;
+      if (getGroupId()
+          != other.getGroupId()) return false;
       if (getDestination()
           != other.getDestination()) return false;
       if (!getTransit()
           .equals(other.getTransit())) return false;
+      if (getSendTime()
+          != other.getSendTime()) return false;
       if (!unknownFields.equals(other.unknownFields)) return false;
       return true;
     }
@@ -476,15 +584,24 @@ public final class ResponseProtocol {
           getResponseId());
       hash = (37 * hash) + RESPONSENAME_FIELD_NUMBER;
       hash = (53 * hash) + getResponseName().hashCode();
+      hash = (37 * hash) + RESPONSEMSGID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getResponseMsgId());
       hash = (37 * hash) + RESPONSEMSG_FIELD_NUMBER;
       hash = (53 * hash) + getResponseMsg().hashCode();
       hash = (37 * hash) + TYPE_FIELD_NUMBER;
       hash = (53 * hash) + getType();
+      hash = (37 * hash) + GROUPID_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getGroupId());
       hash = (37 * hash) + DESTINATION_FIELD_NUMBER;
       hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
           getDestination());
       hash = (37 * hash) + TRANSIT_FIELD_NUMBER;
       hash = (53 * hash) + getTransit().hashCode();
+      hash = (37 * hash) + SENDTIME_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
+          getSendTime());
       hash = (29 * hash) + unknownFields.hashCode();
       memoizedHashCode = hash;
       return hash;
@@ -622,13 +739,19 @@ public final class ResponseProtocol {
 
         responseName_ = "";
 
+        responseMsgId_ = 0L;
+
         responseMsg_ = "";
 
         type_ = 0;
 
+        groupId_ = 0L;
+
         destination_ = 0L;
 
         transit_ = "";
+
+        sendTime_ = 0L;
 
         return this;
       }
@@ -658,10 +781,13 @@ public final class ResponseProtocol {
         com.justafewmistakes.nim.common.protobuf.ResponseProtocol.Response result = new com.justafewmistakes.nim.common.protobuf.ResponseProtocol.Response(this);
         result.responseId_ = responseId_;
         result.responseName_ = responseName_;
+        result.responseMsgId_ = responseMsgId_;
         result.responseMsg_ = responseMsg_;
         result.type_ = type_;
+        result.groupId_ = groupId_;
         result.destination_ = destination_;
         result.transit_ = transit_;
+        result.sendTime_ = sendTime_;
         onBuilt();
         return result;
       }
@@ -717,6 +843,9 @@ public final class ResponseProtocol {
           responseName_ = other.responseName_;
           onChanged();
         }
+        if (other.getResponseMsgId() != 0L) {
+          setResponseMsgId(other.getResponseMsgId());
+        }
         if (!other.getResponseMsg().isEmpty()) {
           responseMsg_ = other.responseMsg_;
           onChanged();
@@ -724,12 +853,18 @@ public final class ResponseProtocol {
         if (other.getType() != 0) {
           setType(other.getType());
         }
+        if (other.getGroupId() != 0L) {
+          setGroupId(other.getGroupId());
+        }
         if (other.getDestination() != 0L) {
           setDestination(other.getDestination());
         }
         if (!other.getTransit().isEmpty()) {
           transit_ = other.transit_;
           onChanged();
+        }
+        if (other.getSendTime() != 0L) {
+          setSendTime(other.getSendTime());
         }
         this.mergeUnknownFields(other.unknownFields);
         onChanged();
@@ -887,6 +1022,44 @@ public final class ResponseProtocol {
         return this;
       }
 
+      private long responseMsgId_ ;
+      /**
+       * <pre>
+       * 请求体的消息id
+       * </pre>
+       *
+       * <code>int64 responseMsgId = 9;</code>
+       */
+      public long getResponseMsgId() {
+        return responseMsgId_;
+      }
+      /**
+       * <pre>
+       * 请求体的消息id
+       * </pre>
+       *
+       * <code>int64 responseMsgId = 9;</code>
+       */
+      public Builder setResponseMsgId(long value) {
+        
+        responseMsgId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       * 请求体的消息id
+       * </pre>
+       *
+       * <code>int64 responseMsgId = 9;</code>
+       */
+      public Builder clearResponseMsgId() {
+        
+        responseMsgId_ = 0L;
+        onChanged();
+        return this;
+      }
+
       private java.lang.Object responseMsg_ = "";
       /**
        * <pre>
@@ -1010,6 +1183,44 @@ public final class ResponseProtocol {
       public Builder clearType() {
         
         type_ = 0;
+        onChanged();
+        return this;
+      }
+
+      private long groupId_ ;
+      /**
+       * <pre>
+       *群id用于发送群聊的时候
+       * </pre>
+       *
+       * <code>int64 groupId = 7;</code>
+       */
+      public long getGroupId() {
+        return groupId_;
+      }
+      /**
+       * <pre>
+       *群id用于发送群聊的时候
+       * </pre>
+       *
+       * <code>int64 groupId = 7;</code>
+       */
+      public Builder setGroupId(long value) {
+        
+        groupId_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       *群id用于发送群聊的时候
+       * </pre>
+       *
+       * <code>int64 groupId = 7;</code>
+       */
+      public Builder clearGroupId() {
+        
+        groupId_ = 0L;
         onChanged();
         return this;
       }
@@ -1140,6 +1351,44 @@ public final class ResponseProtocol {
         onChanged();
         return this;
       }
+
+      private long sendTime_ ;
+      /**
+       * <pre>
+       *发送的时间
+       * </pre>
+       *
+       * <code>int64 sendTime = 8;</code>
+       */
+      public long getSendTime() {
+        return sendTime_;
+      }
+      /**
+       * <pre>
+       *发送的时间
+       * </pre>
+       *
+       * <code>int64 sendTime = 8;</code>
+       */
+      public Builder setSendTime(long value) {
+        
+        sendTime_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <pre>
+       *发送的时间
+       * </pre>
+       *
+       * <code>int64 sendTime = 8;</code>
+       */
+      public Builder clearSendTime() {
+        
+        sendTime_ = 0L;
+        onChanged();
+        return this;
+      }
       @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
@@ -1207,12 +1456,13 @@ public final class ResponseProtocol {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\016response.proto\"}\n\010Response\022\022\n\nresponse" +
-      "Id\030\001 \001(\003\022\024\n\014responseName\030\005 \001(\t\022\023\n\013respon" +
-      "seMsg\030\002 \001(\t\022\014\n\004type\030\003 \001(\005\022\023\n\013destination" +
-      "\030\004 \001(\003\022\017\n\007transit\030\006 \001(\tB<\n(com.justafewm" +
-      "istakes.nim.common.protobufB\020ResponsePro" +
-      "tocolb\006proto3"
+      "\n\016response.proto\"\267\001\n\010Response\022\022\n\nrespons" +
+      "eId\030\001 \001(\003\022\024\n\014responseName\030\005 \001(\t\022\025\n\rrespo" +
+      "nseMsgId\030\t \001(\003\022\023\n\013responseMsg\030\002 \001(\t\022\014\n\004t" +
+      "ype\030\003 \001(\005\022\017\n\007groupId\030\007 \001(\003\022\023\n\013destinatio" +
+      "n\030\004 \001(\003\022\017\n\007transit\030\006 \001(\t\022\020\n\010sendTime\030\010 \001" +
+      "(\003B<\n(com.justafewmistakes.nim.common.pr" +
+      "otobufB\020ResponseProtocolb\006proto3"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
         new com.google.protobuf.Descriptors.FileDescriptor.    InternalDescriptorAssigner() {
@@ -1231,7 +1481,7 @@ public final class ResponseProtocol {
     internal_static_Response_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
         internal_static_Response_descriptor,
-        new java.lang.String[] { "ResponseId", "ResponseName", "ResponseMsg", "Type", "Destination", "Transit", });
+        new java.lang.String[] { "ResponseId", "ResponseName", "ResponseMsgId", "ResponseMsg", "Type", "GroupId", "Destination", "Transit", "SendTime", });
   }
 
   // @@protoc_insertion_point(outer_class_scope)
