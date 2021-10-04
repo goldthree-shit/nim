@@ -1,4 +1,4 @@
-package com.justafewmistakes.nim.gateway.mapper;
+package com.justafewmistakes.nim.server.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.justafewmistakes.nim.common.entity.MsgIndex;

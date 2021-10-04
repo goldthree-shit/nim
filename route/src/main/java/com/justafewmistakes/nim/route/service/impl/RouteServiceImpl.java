@@ -146,8 +146,7 @@ public class RouteServiceImpl implements RouteService {
             userId = map.get("userId");
             username = map.get("username");
         } catch (Exception e) {
-            LOGGER.error("解析token异常");
-            e.printStackTrace();
+            LOGGER.error("解析token异常",e);
         }
 
         // 使用键检查登入状态

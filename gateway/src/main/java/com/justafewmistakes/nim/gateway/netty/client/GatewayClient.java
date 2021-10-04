@@ -9,7 +9,6 @@ import com.justafewmistakes.nim.gateway.cache.IMServerCache;
 import com.justafewmistakes.nim.gateway.config.AppConfiguration;
 import com.justafewmistakes.nim.gateway.kit.NacosClient;
 import com.justafewmistakes.nim.gateway.netty.init.GatewayClientChannelHandleInitializer;
-import com.justafewmistakes.nim.gateway.netty.service.client.reconnect.ReconnectThread;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -46,45 +45,36 @@ public class GatewayClient {
     private AppConfiguration appConfiguration; //该网关的所有配置信息
 
     @Autowired
-    private ClientCache clientCache; //所有和该网关连接的客户端缓存
-
-    @Autowired
     private IMServerCache imServerCache; //网关和所有的IM服务器的连接缓存
 
     @Autowired
     private NacosClient nacosClient; //nacos的客户端，用于获取nacos上的数据
 
     @Autowired
-    private ReconnectThread reconnectThread; //对无法连接上的服务器重连/对断开的服务器重连
-
-    @Autowired
     private ThreadPoolExecutor threadPoolExecutor; //线程池，用于并发执行连接任务
-
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate; //用于将自己注册入redis
 
     /**
      * 获取服务端监听的地址，并且启动客户端连接上所有的地址
      */
     @PostConstruct
     public void startClient() throws ExecutionException, InterruptedException {
-//        int times = 0;
-//        // 获取全部的IM服务器的监听地址
-//        List<String> allIMServerAddr = getAllIMServer();
-//
-//        // 启动客户端，并且连接上所有的服务器，无法完全连接，则无限循环
-//        while(!connectToAll(allIMServerAddr)) {
-//            LOGGER.error("连接所有IM服务器失败的次数[{}],进行无限重试",++times);
-//            allIMServerAddr = getAllIMServer();
-//        };
-//
-//        // 向服务器发送一个包确认一下
-//        successConnect();
+        int times = 0;
+        // 获取全部的IM服务器的监听地址
+        List<String> allIMServerAddr = getAllIMServer();
+
+        // 启动客户端，并且连接上所有的服务器，无法完全连接，则无限循环
+        while(!connectToAll(allIMServerAddr)) {
+            LOGGER.error("连接所有IM服务器失败的次数[{}],进行无限重试",++times);
+            allIMServerAddr = getAllIMServer();
+        };
+
+        // 向服务器发送一个包确认一下
+        successConnect();
 
     }
 
     /**
-     * 在连接成功后，向服务器发送一个信息确认可达
+     * 在连接成功后，向服务器发送一个信息确认可达,并将自己注册到服务器的缓存中
      */
     private void successConnect() {
         Map<String, NioSocketChannel> allChannelFromCache = imServerCache.getAllChannelFromCacheAsMap();
@@ -120,6 +110,7 @@ public class GatewayClient {
                 if(imServerCache.alreadyContain(IMServer)) continue;
                 list.add(createConnectTask(bootstrap, IMServer));
             }
+            if(list.size() == 0) return true; //没有网关
             List<Future<Boolean>> futures = threadPoolExecutor.invokeAll(list);
             for(Future<Boolean> now : futures) {
                 if(!now.get()) {
@@ -167,14 +158,15 @@ public class GatewayClient {
     /**
      * 获取所有的IM服务端的ip+port地址
      */
-    List<String> getAllIMServer() {
+    private List<String> getAllIMServer() {
         List<String> preServerList = nacosClient.getAllServersInNacos().get("server:");
         List<String> serverList = new ArrayList<>();
-        for(String preServer : preServerList) {
-            serverList.add(PrefixUtil.parsePreGatewayToGateWay(preServer));
+        if(preServerList != null) {
+            for(String preServer : preServerList) {
+                serverList.add(PrefixUtil.parsePreGatewayToGateWay(preServer));
+            }
         }
         return serverList;
     }
-
 
 }

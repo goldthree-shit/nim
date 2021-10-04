@@ -13,11 +13,12 @@ import java.net.Socket;
 
 /**
  * Duty:检测是否可达的组件（客户端和im服务器）
- *
+ * 在网关中并不需要，我们直接通过管道发送
  * @author justafewmistakes
  * Date: 2021/09
  */
 @Component
+@Deprecated
 public class ReachableKit {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReachableKit.class);

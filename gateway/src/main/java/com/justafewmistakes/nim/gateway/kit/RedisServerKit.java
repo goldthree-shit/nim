@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Duty: 路由端所有redis服务
- *
+ * TODO: 看看这个到底有没有必要
  * @author justafewmistakes
  * Date: 2021/10
  */
@@ -29,6 +29,13 @@ public class RedisServerKit {
     public boolean isOnline(Long clientId) {
         String preClientId = Constants.LOGIN_PREFIX + clientId;
         return !Strings.isNullOrEmpty(redisTemplate.opsForValue().get(preClientId));
+    }
+
+    /**
+     * 在网关里，让客户端下线（读空闲太久了）
+     */
+    public void clientOffline(Long clientId) {
+        redisTemplate.delete(String.valueOf(clientId));
     }
 
     /**
@@ -60,8 +67,11 @@ public class RedisServerKit {
      * 通过客户端id获取他的token信息（目前是为了获取连接到的网关）
      * @param clientId 无前缀的客户端id
      */
+    @Deprecated
     public String getOnlineTokenInfo(Long clientId) {
         String key = Constants.LOGIN_PREFIX + clientId;
         return redisTemplate.opsForValue().get(key);
     }
+
+
 }

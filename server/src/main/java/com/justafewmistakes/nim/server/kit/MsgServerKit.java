@@ -1,23 +1,20 @@
-package com.justafewmistakes.nim.gateway.kit;
+package com.justafewmistakes.nim.server.kit;
 
 import com.justafewmistakes.nim.common.entity.MsgContent;
 import com.justafewmistakes.nim.common.entity.MsgIndex;
 import com.justafewmistakes.nim.common.excpetion.FailEnums;
 import com.justafewmistakes.nim.common.excpetion.IMException;
-import com.justafewmistakes.nim.gateway.mapper.MsgContentMapper;
-import com.justafewmistakes.nim.gateway.mapper.MsgIndexMapper;
+import com.justafewmistakes.nim.server.mapper.MsgContentMapper;
+import com.justafewmistakes.nim.server.mapper.MsgIndexMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.*;
-
 /**
  * Duty: 用于对消息与其索引进行保存
- *
+ * FIXME:是在im服务器的东西
  * @author justafewmistakes
  * Date: 2021/10
  */

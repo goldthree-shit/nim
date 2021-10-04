@@ -47,6 +47,39 @@ public class ClientCache {
     }
 
     /**
+     * 移除缓存中的管道
+     */
+    public void removeCache(Long clientId) {
+        NioSocketChannel channel = clientCacheLN.asMap().get(clientId);
+        clientCacheLN.invalidate(clientId);
+        clientCacheNL.invalidate(channel);
+    }
+
+    /**
+     * 移除缓存中的管道
+     */
+    public Long removeCache(NioSocketChannel channel) {
+        Long clientId = clientCacheNL.asMap().get(channel);
+        clientCacheNL.invalidate(channel);
+        clientCacheLN.invalidate(clientId);
+        return clientId;
+    }
+
+    /**
+     * 服务端让用户下线（管道长时间没有心跳，或者管道断开）
+     */
+    public Long clientOffline(NioSocketChannel channel) {
+        // 无论如何都要让缓存丢失
+        Long clientId = removeCache(channel);
+        // 检测是否已经下线
+        boolean isOnline = redisServerKit.isOnline(clientId);
+        if(isOnline) { //去让客户端下线,直接清除redis中的内容就好，管道断开会自动通知到客户端让他去重连
+            redisServerKit.clientOffline(clientId);
+        }
+        return clientId;
+    }
+
+    /**
      * 是否客户端离线（检验缓存中是否有管道）
      * @param clientId 客户端id，无前缀
      */
@@ -56,8 +89,10 @@ public class ClientCache {
 
     /**
      * 通过客户端id获取他连接到的网关，这个是从redis中获取的
+     * TODO: 看看这个到底有没有必要
      * @param clientId 客户端id，无前缀
      */
+    @Deprecated
     public String getOnlineClientGatewayInfo(Long clientId) {
         String token = redisServerKit.getOnlineTokenInfo(clientId);
         try {

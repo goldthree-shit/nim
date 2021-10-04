@@ -32,6 +32,7 @@ public class HearBeatUtil {
                 .setDestination(-1)
                 .setTransit("")
                 .setSendTime(NtpUtil.getNtpTime())
+                .setRequestMsgId(0)
                 .build();
     }
 
@@ -48,6 +49,7 @@ public class HearBeatUtil {
                 .setDestination(-1)
                 .setTransit("")
                 .setSendTime(NtpUtil.getNtpTime())
+                .setResponseMsgId(0)
                 .build();
     }
 }

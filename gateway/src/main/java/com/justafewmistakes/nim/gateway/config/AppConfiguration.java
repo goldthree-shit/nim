@@ -47,4 +47,7 @@ public class AppConfiguration {
 
     @Value("${nim.retry}")
     private int retryTime;
+
+    @Value("${nim.read.idle}")
+    private int readIdle;
 }

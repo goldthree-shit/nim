@@ -99,12 +99,16 @@ public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponsePr
     }
 
     /**
-     * 管道失效
+     * 管道失效,每次断开都会去无限重连im服务器，直到成功连接所有的im服务器，在这期间是无法提供服务的
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
-        if(ctx.channel() instanceof NioSocketChannel) imServerCache.removeByChannel((NioSocketChannel) ctx.channel()); //从缓存中移除管道
+        if(ctx.channel() instanceof NioSocketChannel) {
+            imServerCache.removeByChannel((NioSocketChannel) ctx.channel()); //从缓存中移除管道
+            // 执行重连
+            imServerCache.reconnect();
+        }
 
 
         super.channelInactive(ctx);
@@ -133,48 +137,9 @@ public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponsePr
         String transit = msg.getTransit(); //发送的中转地址
         long messageId = msg.getResponseMsgId(); //发送的消息的id
 
-        // 在线和可达状态
-        /* 网关不管他在不在线！只进行转发操作和消息的存储操作
-        boolean isOnline = redisServerKit.isOnline(destination); //是否在线
-        boolean isClientReachable = reachableKit.isClientReachable(destination); //是否客户端可达（在线的时候，可能管道莫得了） TODO：要去检查是否可达,不可达怎么办呢(目前的想法是循环检测10次。然后就不管了）
-        int time = 0;
-
-        // 如果在线但不可达，循环至多10次
-        while(isOnline && !isClientReachable && time<10) {
-            isClientReachable = reachableKit.isClientReachable(destination);
-            ++time;
-        }
-        */
-
-
         // 是单聊, 在网关当作客户端时，是已经由im服务器转发过来的了，直接发送给客户端sdk
         if(type == Constants.SINGLE_CHAT) {
-//            if(!isOnline || !isClientReachable) {
-//                String preDestination = Constants.OFFLINE_MSG_PREFIX + destination; //存入离线文件的有前缀的接受端id
-//                String preMsg = offlineMsgUtil.addPrefix(groupId, senderId, senderName, sendTime, message); //存入离线文件的msg
-//                gatewayMsgListener.listen(preDestination, preMsg);
-//            }
 
-            /* 这个是网关作为server的
-            // 获取发送到的IM服务器管道
-            List<NioSocketChannel> list = imServerCache.getAllChannelFromCacheAsList();
-            NioSocketChannel channel = routeHandler.selectIMServer(list);
-            // 获取要转发到的网关
-            String transitGateway = clientCache.getOnlineClientGatewayInfo(destination);
-
-            RequestProtocol.Request request = RequestProtocol.Request.newBuilder()
-                    .setRequestId(senderId)
-                    .setType(type)
-                    .setGroupId(-1)
-                    .setSendTime(sendTime)
-                    .setRequestMsg(message)
-                    .setTransit(transitGateway)
-                    .setRequestName(senderName)
-                    .setDestination(destination)
-                    .build();
-
-            channel.writeAndFlush(request);
-             */
             // 获取连接到该网关的客户端管道
             NioSocketChannel clientChannel = clientCache.getClientChannel(destination);
             ResponseProtocol.Response response = ResponseProtocol.Response.newBuilder()
@@ -210,9 +175,9 @@ public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponsePr
             return ;
         }
 
-        // 是ack,发送到im服务进行处理,im服务器需要使用这个来更新
+        // 是ack,发送到im服务进行处理,im服务器需要使用这个来更新,设计上网关作为客户端不可能收到ack
         if(type == Constants.ACK) {
-
+            return ;
         }
     }
 }

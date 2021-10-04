@@ -1,12 +1,14 @@
 package com.justafewmistakes.nim.gateway.cache;
 
 import com.google.common.cache.LoadingCache;
+import com.justafewmistakes.nim.common.util.PrefixUtil;
 import com.justafewmistakes.nim.gateway.kit.NacosClient;
 import com.justafewmistakes.nim.gateway.netty.client.GatewayClient;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -55,9 +57,9 @@ public class IMServerCache {
     /**
      * 更新目前连接的IM服务器的缓存，如果已经存在的不变，不存在的断开，新增的去重连
      */
-    public void updateCache(List<String> IMServerList) {
+    public void updateCache(List<String> imServerList) {
         for(String old : IMCacheSN.asMap().keySet()) { //旧的不存在于新的nacos中存在的服务列表中的时候，断开管道
-            if(!IMServerList.contains(old)) {
+            if(!imServerList.contains(old)) {
                 try {
                     NioSocketChannel channel = IMCacheSN.get(old);
                     IMCacheSN.invalidate(old); //当不存在于新的nacos中的时候，删去该key对应的value
@@ -71,8 +73,14 @@ public class IMServerCache {
         }
 
         try {
-            gatewayClient.connectToAll(IMServerList);
+            // FIXME:这里不连上去，网关/服务器是不能用的
+            int times = 1;
+            while(!gatewayClient.connectToAll(imServerList)) {
+                LOGGER.error("连接所有IM服务器失败的次数[{}],进行无限的重试（im服务器有更新的时候）",++times);
+                imServerList = getAllIMServer();
+            }
         } catch (ExecutionException | InterruptedException e) {
+            //TODO:网关连接服务器处理
             LOGGER.error("gateway 在nacos发生变化时连接 IM服务器产生错误，但是已经去掉了无效的，所以暂时没有问题");
         }
 
@@ -117,5 +125,28 @@ public class IMServerCache {
      */
     public String getServerName(NioSocketChannel channel) throws ExecutionException {
         return IMCacheNS.get(channel);
+    }
+
+    /**
+     * 获取所有的IM服务端的ip+port地址
+     */
+    private List<String> getAllIMServer() {
+        List<String> serverList = new ArrayList<>();
+        List<String> preServerList = nacosClient.getAllServersInNacos().get("server:");
+        if(preServerList != null) {
+            for(String preServer : preServerList) {
+                serverList.add(PrefixUtil.parsePreGatewayToGateWay(preServer));
+            }
+        }
+        return serverList;
+    }
+
+    /**
+     * 重连，就是让他从nacos中获取所有的im服务器，重新开始连,其实就是updateCache
+     */
+    @AliasFor("updateCache")
+    public void reconnect() {
+        List<String> imServerList = getAllIMServer();
+        updateCache(imServerList);
     }
 }
