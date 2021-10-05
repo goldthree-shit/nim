@@ -1,4 +1,4 @@
-package com.justafewmistakes.nim.gateway.config;
+package com.justafewmistakes.nim.server.config;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +10,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @EnableTransactionManagement
-@MapperScan({"com.justafewmistakes.nim.gateway.mapper"})
+@MapperScan({"com.justafewmistakes.nim.server.mapper"})
 public class MyBatisConfig {
 }

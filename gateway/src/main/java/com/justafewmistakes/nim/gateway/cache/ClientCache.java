@@ -42,27 +42,38 @@ public class ClientCache {
      * 向缓存中新增对应的管道
      */
     public void addCache(Long clientId, NioSocketChannel channel) {
-        clientCacheLN.put(clientId, channel);
-        clientCacheNL.put(channel, clientId);
+        // TODO:锁
+        synchronized (ClientCache.class) {
+            clientCacheLN.put(clientId, channel);
+            clientCacheNL.put(channel, clientId);
+        }
     }
 
     /**
      * 移除缓存中的管道
      */
     public void removeCache(Long clientId) {
-        NioSocketChannel channel = clientCacheLN.asMap().get(clientId);
-        clientCacheLN.invalidate(clientId);
-        clientCacheNL.invalidate(channel);
+        //TODO:锁
+        synchronized (ClientCache.class) {
+            NioSocketChannel channel = clientCacheLN.asMap().get(clientId);
+            clientCacheLN.invalidate(clientId);
+            clientCacheNL.invalidate(channel);
+            if(channel != null) channel.close();
+        }
     }
 
     /**
      * 移除缓存中的管道
      */
     public Long removeCache(NioSocketChannel channel) {
-        Long clientId = clientCacheNL.asMap().get(channel);
-        clientCacheNL.invalidate(channel);
-        clientCacheLN.invalidate(clientId);
-        return clientId;
+        //TODO:锁
+        synchronized (ClientCache.class) {
+            Long clientId = clientCacheNL.asMap().get(channel);
+            clientCacheNL.invalidate(channel);
+            clientCacheLN.invalidate(clientId);
+            if(channel != null) channel.close();
+            return clientId;
+        }
     }
 
     /**
@@ -112,5 +123,12 @@ public class ClientCache {
         NioSocketChannel channel = clientCacheLN.asMap().get(ClientId);
         if(channel == null) throw new IMException(FailEnums.CLIENT_NOT_FOUND);
         return channel;
+    }
+
+    /**
+     * 通过管道获取连接过来的客户端id
+     */
+    public Long getClientId(NioSocketChannel channel) {
+        return clientCacheNL.asMap().get(channel);
     }
 }

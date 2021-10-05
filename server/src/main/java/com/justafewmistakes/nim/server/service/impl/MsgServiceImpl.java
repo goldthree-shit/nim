@@ -1,4 +1,4 @@
-package com.justafewmistakes.nim.server.kit;
+package com.justafewmistakes.nim.server.service.impl;
 
 import com.justafewmistakes.nim.common.entity.MsgContent;
 import com.justafewmistakes.nim.common.entity.MsgIndex;
@@ -6,6 +6,7 @@ import com.justafewmistakes.nim.common.excpetion.FailEnums;
 import com.justafewmistakes.nim.common.excpetion.IMException;
 import com.justafewmistakes.nim.server.mapper.MsgContentMapper;
 import com.justafewmistakes.nim.server.mapper.MsgIndexMapper;
+import com.justafewmistakes.nim.server.service.MsgService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
  * Date: 2021/10
  */
 @Service
-public class MsgServerKit {
+public class MsgServiceImpl implements MsgService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MsgServerKit.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MsgServiceImpl.class);
 
     @Autowired
     private MsgContentMapper msgContentMapper;
@@ -29,13 +30,8 @@ public class MsgServerKit {
     @Autowired
     private MsgIndexMapper msgIndexMapper;
 
-    /**
-     * 将数据保存到数据库
-     * @param type 消息的类型
-     * @param msg 消息
-     * @param sendTime 发送的时间
-     * @return 返回雪花生成的消息id
-     */
+
+    @Override
     @Transactional
     public Long saveMsg(int type, String msg, Long sendTime) {
         MsgContent content = new MsgContent();
@@ -50,16 +46,7 @@ public class MsgServerKit {
         return content.getId();
     }
 
-    /**
-     * 将发送的消息存入用户管道（一个抽象的管道，因为是写扩散，每个用户都会维护一个读管道）索引
-     * @param ownerId 该管道所有者的客户端id
-     * @param anotherClientId 在群聊中这个就是发送端的id，在单聊中这个就是另一方的id
-     * @param direction 为1说明该管道是发送方
-     * @param msgId 消息的id
-     * @param groupId 群组的id
-     * @param sendTime 发送的时间
-     * @return 返回该索引的id（没有什么用）
-     */
+    @Override
     @Transactional
     public Long saveIndex(Long ownerId, Long anotherClientId, int direction, Long msgId, Long groupId, Long sendTime) {
         MsgIndex index = new MsgIndex();

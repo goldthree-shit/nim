@@ -50,8 +50,11 @@ public class IMServerCache {
      * 向缓存中新增对应的管道
      */
     public void addCache(String IMServer, NioSocketChannel channel) {
-        IMCacheSN.put(IMServer, channel);
-        IMCacheNS.put(channel, IMServer);
+        // TODO:锁
+        synchronized (IMServerCache.class) {
+            IMCacheSN.put(IMServer, channel);
+            IMCacheNS.put(channel, IMServer);
+        }
     }
 
     /**
@@ -62,8 +65,7 @@ public class IMServerCache {
             if(!imServerList.contains(old)) {
                 try {
                     NioSocketChannel channel = IMCacheSN.get(old);
-                    IMCacheSN.invalidate(old); //当不存在于新的nacos中的时候，删去该key对应的value
-                    IMCacheNS.invalidate(channel);
+                    removeByChannel(channel); //当不存在于新的nacos中的时候，删去该key对应的value
                     channel.close(); //TODO:测试一下这个关闭会不会触发管道中的关闭操作(会，所以要在搞一个变量让他不要重连，和用户主动退出一样)
                 } catch (ExecutionException e) {
                     LOGGER.error("从IMServer中获取缓存出错");
@@ -108,15 +110,22 @@ public class IMServerCache {
     }
 
     /**
-     * 管道不可用的时候，通过管道删除记录
+     * 管道不可用的时候，通过管道删除记录，有东西被删掉的时候才要在管道失效那里执行重连，不然就不应该重连
+     * @return 当有移除东西的时候，返回true
      */
-    public void removeByChannel(NioSocketChannel channel) {
-        try {
-            String imSever = IMCacheNS.get(channel);
-            IMCacheNS.invalidate(channel);
-            IMCacheSN.invalidate(imSever);
-        } catch (ExecutionException e) {
-            LOGGER.error("获取缓存失败");
+    public boolean removeByChannel(NioSocketChannel channel) {
+        // TODO:锁
+        synchronized (IMServerCache.class) {
+            try {
+                if(IMCacheNS.get(channel) == null) return false;
+                String imSever = IMCacheNS.get(channel);
+                IMCacheNS.invalidate(channel);
+                IMCacheSN.invalidate(imSever);
+                if(channel != null) channel.close();
+            } catch (ExecutionException e) {
+                LOGGER.error("获取缓存失败");
+            }
+            return true;
         }
     }
 

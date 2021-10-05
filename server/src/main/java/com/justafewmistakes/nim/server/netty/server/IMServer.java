@@ -1,10 +1,7 @@
-package com.justafewmistakes.nim.gateway.netty.server;
+package com.justafewmistakes.nim.server.netty.server;
 
-import com.justafewmistakes.nim.gateway.cache.ClientCache;
-import com.justafewmistakes.nim.gateway.config.AppConfiguration;
-import com.justafewmistakes.nim.gateway.netty.client.GatewayClient;
-import com.justafewmistakes.nim.gateway.netty.handler.GatewayServerHandler;
-import com.justafewmistakes.nim.gateway.netty.init.GatewayServerChannelHandleInitializer;
+import com.justafewmistakes.nim.server.config.AppConfiguration;
+import com.justafewmistakes.nim.server.netty.init.IMServerChannelHandlerInitializer;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -19,18 +16,16 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.net.InetSocketAddress;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * Duty: 网关作为连接客户端sdk的时候，是一个netty服务端
+ * Duty:im服务器的netty服务端，用于网关的客户端连接与信息的处理
  *
  * @author justafewmistakes
- * Date: 2021/09
+ * Date: 2021/10
  */
 @Component
-public class GatewayServer {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GatewayServer.class);
+public class IMServer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IMServer.class);
 
     @Autowired
     private AppConfiguration appConfiguration; //配置
@@ -39,20 +34,20 @@ public class GatewayServer {
     private EventLoopGroup work = new NioEventLoopGroup();
 
     /**
-     * 启动网关服务端
+     * 启动im服务器
      */
     @PostConstruct
-    public void startServer() throws InterruptedException {
+    public void startIMServer() throws InterruptedException {
         ServerBootstrap bootstrap = new ServerBootstrap()
                 .group(boss, work)
                 .channel(NioServerSocketChannel.class)
-                .localAddress(new InetSocketAddress(Integer.parseInt(appConfiguration.getGatewayPort())))
+                .localAddress(new InetSocketAddress(Integer.parseInt(appConfiguration.getImServerPort())))
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childHandler(new GatewayServerChannelHandleInitializer());
+                .childHandler(new IMServerChannelHandlerInitializer());
 
         ChannelFuture future = bootstrap.bind().sync();
         if(future.isSuccess()) {
-            LOGGER.info("网关服务端启动成功");
+            LOGGER.info("im服务器启动成功");
         }
     }
 
@@ -63,6 +58,6 @@ public class GatewayServer {
     private void destroy() {
         boss.shutdownGracefully();
         work.shutdownGracefully();
-        LOGGER.info("优雅关闭了网关服务端");
+        LOGGER.info("优雅关闭了im服务器");
     }
 }

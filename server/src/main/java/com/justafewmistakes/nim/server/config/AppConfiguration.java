@@ -1,6 +1,5 @@
-package com.justafewmistakes.nim.gateway.config;
+package com.justafewmistakes.nim.server.config;
 
-import lombok.Data;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfiguration {
 
     @Value("${nim.name}")
-    private String gatewayName;
+    private String IMServerName;
 
     @Value("${spring.cloud.nacos.discovery.server-addr}")
     private String nacosAddress;
@@ -25,10 +24,10 @@ public class AppConfiguration {
     private String routeHandler;
 
     @Value("${nim.ip}")
-    private String gatewayIp;
+    private String imServerIp;
 
     @Value("${nim.port}")
-    private String gatewayPort;
+    private String imServerPort;
 
     @Value("${thread.pool.core}")
     private int core;

@@ -1,9 +1,8 @@
-package com.justafewmistakes.nim.gateway.netty.init;
+package com.justafewmistakes.nim.server.netty.init;
 
 import com.justafewmistakes.nim.common.protobuf.RequestProtocol;
 import com.justafewmistakes.nim.common.protobuf.ResponseProtocol;
-import com.justafewmistakes.nim.gateway.netty.handler.GatewayClientHandler;
-import com.justafewmistakes.nim.gateway.netty.handler.GatewayServerHandler;
+import com.justafewmistakes.nim.server.netty.handler.IMServerChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.protobuf.ProtobufDecoder;
@@ -15,19 +14,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Duty:
+ * Duty:用于初始化im服务器的管道
  *
  * @author justafewmistakes
- * Date: 2021/09
+ * Date: 2021/10
  */
-public class GatewayServerChannelHandleInitializer extends ChannelInitializer<SocketChannel> {
+public class IMServerChannelHandlerInitializer extends ChannelInitializer<SocketChannel> {
 
-//    private final GatewayServerHandler handler = new GatewayServerHandler(); //服务端的处理器 //不能使用依赖注入，因为netty启动的时候，没有交给ioc
+//    private final IMServerChannelHandler handler = new IMServerChannelHandler(); //不能使用依赖注入，因为netty启动的时候，没有交给ioc
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
         ch.pipeline()
-                // 服务端每13s没收到客户端发送来的心跳，进行一次记录。3次以后断开连接
+                // im服务器每13s没收到网关发送来的心跳，进行一次记录。3次以后断开连接
                 .addLast(new IdleStateHandler(13, 0, 0))
                 //拆包解码
                 .addLast(new ProtobufVarint32FrameDecoder())
@@ -35,6 +34,6 @@ public class GatewayServerChannelHandleInitializer extends ChannelInitializer<So
                 //拆包编码
                 .addLast(new ProtobufVarint32LengthFieldPrepender())
                 .addLast(new ProtobufEncoder())
-                .addLast(new GatewayServerHandler());
+                .addLast(new IMServerChannelHandler());
     }
 }

@@ -96,15 +96,17 @@ public class GatewayClient {
 
     /**
      * 连接上所有的服务器(初始化+nacos发生变化）
+     * FIXME: 看看等一下启动另一个IMServer可不可以让线程池启动再使用-
      */
     public boolean connectToAll(List<String> allIMServerAddr) throws ExecutionException, InterruptedException {
+//        if(threadPoolExecutor.isShutdown()) threadPoolExecutor.prestartAllCoreThreads();
         //FIXME：是否该锁有必要
         synchronized (GatewayClient.class) { //在这里上把锁，防止监听到nacos的变化的时候，和暂时未知的其他的变化监听变更一起进行，导致出错
             Bootstrap bootstrap = new Bootstrap();
             NioEventLoopGroup group = new NioEventLoopGroup();
             bootstrap.group(group)
                     .channel(NioSocketChannel.class)
-                    .handler(new GatewayClientChannelHandleInitializer()); //TODO:初始化器还没写完呢
+                    .handler(new GatewayClientChannelHandleInitializer());
             List<Callable<Boolean>> list = new ArrayList<>();
             for (String IMServer : allIMServerAddr) {
                 if(imServerCache.alreadyContain(IMServer)) continue;
@@ -118,13 +120,15 @@ public class GatewayClient {
                     return false;
                 }
             }
-            //TODO: 超时如何重试(我的想法目前也是全部再重连一次)
-            return threadPoolExecutor.awaitTermination(1, TimeUnit.MINUTES);
+            return true;
+//            //TODO: 超时如何重试(我的想法目前也是全部再重连一次)
+//            threadPoolExecutor.shutdown();
+//            return threadPoolExecutor.awaitTermination(1, TimeUnit.MINUTES);
         }
     }
 
     /**
-     * 连接上IM服务器
+     * 连接上IM服务器，并将连接信息加入im服务器缓存
      */
     private Callable<Boolean> createConnectTask(Bootstrap bootstrap, String imServer) {
         return new Callable<Boolean>() {

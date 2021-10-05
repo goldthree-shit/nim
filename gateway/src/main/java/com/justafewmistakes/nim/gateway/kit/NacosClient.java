@@ -7,6 +7,7 @@ import com.alibaba.nacos.api.naming.listener.Event;
 import com.alibaba.nacos.api.naming.listener.EventListener;
 import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.justafewmistakes.nim.common.util.PrefixUtil;
 import com.justafewmistakes.nim.gateway.cache.IMServerCache;
 import com.justafewmistakes.nim.gateway.config.AppConfiguration;
 import org.slf4j.Logger;
@@ -74,10 +75,11 @@ public class NacosClient {
                         LOGGER.info("目前服务名："+((NamingEvent)event).getServiceName());
                         LOGGER.info("目前实例："+((NamingEvent)event).getInstances());
                         List<Instance> instances = ((NamingEvent) event).getInstances();
-                        List<String> IMServerList = new ArrayList<>();
+                        List<String> PreIMServerList = new ArrayList<>(), IMServerList = new ArrayList<>();
                         for(Instance instance : instances) {
-                            if(instance.isHealthy()) IMServerList.add(instance.getMetadata().get("im_addr"));
+                            if(instance.isHealthy()) PreIMServerList.add(instance.getMetadata().get("im_addr")); //现在获取的是有前缀的
                         }
+                        for(String PreIMServer : PreIMServerList) IMServerList.add(PrefixUtil.parsePreGatewayToGateWay(PreIMServer));
                         imServerCache.updateCache(IMServerList);
                     }
                 }

@@ -1,8 +1,8 @@
-package com.justafewmistakes.nim.gateway.netty.service.server;
+package com.justafewmistakes.nim.server.netty.service.server;
 
 import com.justafewmistakes.nim.common.kit.HeartBeatHandler;
-import com.justafewmistakes.nim.gateway.cache.ClientCache;
-import com.justafewmistakes.nim.gateway.config.AppConfiguration;
+import com.justafewmistakes.nim.server.cache.GatewayCache;
+import com.justafewmistakes.nim.server.config.AppConfiguration;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
@@ -18,15 +18,15 @@ import org.springframework.stereotype.Component;
  * Date: 2021/10
  */
 @Component
-public class GatewayServerHeartBeatHandler implements HeartBeatHandler {
+public class IMServerHeartBeatHandler implements HeartBeatHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GatewayServerHeartBeatHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IMServerHeartBeatHandler.class);
 
     @Autowired
     private AppConfiguration appConfiguration;
 
     @Autowired
-    private ClientCache clientCache; //客户端连接缓存，用于让客户端下线
+    private GatewayCache gatewayCache; //网关连接缓存，用于让客户端下线
 
     // 11秒一次读空闲
     private static final int tenSecond = 11000;
@@ -49,10 +49,10 @@ public class GatewayServerHeartBeatHandler implements HeartBeatHandler {
             long now = System.currentTimeMillis(); // FIXME:这里时间用的是系统时间，记得后面修改
             long time = now - lastTime;
             if(time > maxTime) {
-                Long clientId = clientCache.clientOffline((NioSocketChannel) ctx.channel());
-                if(clientId != null) LOGGER.error("客户端[{}]读空闲过久,让客户端下线（redis中删除），并关闭管道", clientId);
+                String gatewayOffline = gatewayCache.gatewayOffline((NioSocketChannel) ctx.channel());
+                if(gatewayOffline != null) LOGGER.error("网关[{}]读空闲过久,让网关下线（redis中删除），并关闭管道", gatewayOffline);
                 else LOGGER.error("客户端读空闲过久,但是已经是下线的了");
-                ctx.channel().close(); //关闭管道，会通知到客户端 TODO：1.看看会不会进inactive方法 2.客户端sdk需要对此做出反应
+                ctx.channel().close(); //关闭管道，会通知到网关端 TODO：1.看看会不会进inactive方法 2.网关需要对此做出反应
             }
         }
 

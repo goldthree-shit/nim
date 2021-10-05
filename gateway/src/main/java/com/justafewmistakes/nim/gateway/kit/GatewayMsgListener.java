@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * @author justafewmistakes
  * Date: 2021/09
  */
-@Component
+//@Component
 @Deprecated
 public class GatewayMsgListener implements MsgListener {
 

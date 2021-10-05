@@ -9,6 +9,8 @@ import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32FrameDecoder;
 import io.netty.handler.codec.protobuf.ProtobufVarint32LengthFieldPrepender;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Duty: 网关的管道处理器的初始化器
@@ -18,7 +20,7 @@ import io.netty.handler.timeout.IdleStateHandler;
  */
 public class GatewayClientChannelHandleInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final GatewayClientHandler handler = new GatewayClientHandler();
+//    private final GatewayClientHandler handler = new GatewayClientHandler(); //不能使用依赖注入，因为netty启动的时候，没有交给ioc
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
@@ -31,6 +33,6 @@ public class GatewayClientChannelHandleInitializer extends ChannelInitializer<So
                 //拆包编码
                 .addLast(new ProtobufVarint32LengthFieldPrepender())
                 .addLast(new ProtobufEncoder())
-                .addLast(handler);
+                .addLast(new GatewayClientHandler());
     }
 }

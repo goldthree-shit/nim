@@ -1,4 +1,4 @@
-package com.justafewmistakes.nim.gateway.kit;
+package com.justafewmistakes.nim.server.kit;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -26,9 +26,7 @@ public final class SpringBeanFactory implements ApplicationContextAware {
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        if(SpringBeanFactory.context == null) {
-            SpringBeanFactory.context = applicationContext;
-        }
+        context = applicationContext;
     }
 
 

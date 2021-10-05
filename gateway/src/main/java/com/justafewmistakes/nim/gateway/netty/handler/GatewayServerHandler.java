@@ -10,6 +10,7 @@ import com.justafewmistakes.nim.common.routeprotocol.RouteHandler;
 import com.justafewmistakes.nim.common.util.HearBeatUtil;
 import com.justafewmistakes.nim.gateway.cache.ClientCache;
 import com.justafewmistakes.nim.gateway.cache.IMServerCache;
+import com.justafewmistakes.nim.gateway.kit.SpringBeanFactory;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.IdleState;
@@ -24,31 +25,25 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Duty:
- *
+ * Duty: 网关作为服务端的自定义管道处理器
+ * TODO: 将3个handler的属性设置一下
  * @author justafewmistakes
  * Date: 2021/09
  */
-@ChannelHandler.Sharable
-@Component
+//@ChannelHandler.Sharable
 public class GatewayServerHandler extends SimpleChannelInboundHandler<ResponseProtocol.Response> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayServerHandler.class);
 
-    @Autowired
-    private IMServerCache imServerCache; //获取所有的im服务器
+//    private final IMServerCache imServerCache = SpringBeanFactory.getBean(IMServerCache.class); //获取所有的im服务器
 
-    @Autowired
-    private RouteHandler routeHandler; //（缓存im服务器和网关的关系）选择im服务器
+//    private final RouteHandler routeHandler = SpringBeanFactory.getBean(RouteHandler.class); //（缓存im服务器和网关的关系）选择im服务器
 
-    @Autowired
-    private ClientCache clientCache; //（缓存客户端和网关的关系）获取转发网关,这个功能可能用不上了
+//    private final ClientCache clientCache = SpringBeanFactory.getBean(ClientCache.class); //（缓存客户端和网关的关系）获取转发网关,这个功能可能用不上了
 
-    @Autowired
-    private HearBeatUtil hearBeatUtil; //用于快速创建心跳包
+//    private final HearBeatUtil hearBeatUtil = SpringBeanFactory.getBean(HearBeatUtil.class); //用于快速创建心跳包
 
-    @Resource(name = "gatewayServerHeartBeatHandler")
-    private HeartBeatHandler heartBeatHandler; //网关服务端的心跳处理器，用于多次读空闲后断开连接
+//    private final HeartBeatHandler heartBeatHandler = SpringBeanFactory.getBean(HeartBeatHandler.class); //网关服务端的心跳处理器，用于多次读空闲后断开连接
 
     /**
      * 管道失效
@@ -56,8 +51,14 @@ public class GatewayServerHandler extends SimpleChannelInboundHandler<ResponsePr
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         // 可能会读空闲过久后已经下线了后触发，但是不管，也直接让他下线
+        ClientCache clientCache = SpringBeanFactory.getBean(ClientCache.class);
         Long clientId = clientCache.clientOffline((NioSocketChannel) ctx.channel());
-        if(clientId != null) LOGGER.warn("客户端[{}]管道断开，清除缓存,并让用户下线",clientId);
+
+        if(clientId != null) {
+            LOGGER.warn("客户端[{}]管道断开，清除缓存,并让用户下线",clientId);
+            //FIXME:此时连接关闭了吗 等一下验证完加上if(ctx.channel().isActive())
+            ctx.channel().close();
+        }
 
         super.channelInactive(ctx);
     }
@@ -73,6 +74,8 @@ public class GatewayServerHandler extends SimpleChannelInboundHandler<ResponsePr
             //网关服务端的handler，如果是读空闲，则3次后断开连接
             if(event.state() == IdleState.READER_IDLE) {
                 LOGGER.warn("网关服务端读空闲");
+
+                HeartBeatHandler heartBeatHandler = SpringBeanFactory.getBean(HeartBeatHandler.class);
                 heartBeatHandler.process(ctx);
             }
         }
@@ -85,7 +88,11 @@ public class GatewayServerHandler extends SimpleChannelInboundHandler<ResponsePr
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        if(ctx.channel() instanceof NioSocketChannel) LOGGER.info("客户端连接到网关服务端"+imServerCache.getServerName((NioSocketChannel) ctx.channel())+"成功,管道首次活跃触发");
+        // TODO:看看这个是不是能正常获取名字（这个是顺序问题）
+        if(ctx.channel() instanceof NioSocketChannel) {
+            ClientCache clientCache = SpringBeanFactory.getBean(ClientCache.class);
+            LOGGER.info("客户端" + clientCache.getClientId((NioSocketChannel) ctx.channel()) + "连接到网关服务端成功,管道首次活跃触发");
+        }
         super.channelActive(ctx);
     }
 
@@ -99,7 +106,9 @@ public class GatewayServerHandler extends SimpleChannelInboundHandler<ResponsePr
 
         if(type == Constants.PONG) return;
         if(type == Constants.PING) {
+            HearBeatUtil hearBeatUtil = SpringBeanFactory.getBean(HearBeatUtil.class);
             ChannelFuture future = ctx.writeAndFlush(hearBeatUtil.Pong());
+
             future.addListener((ChannelFutureListener) future0 -> {
                 if(!future0.isSuccess()) {
                     LOGGER.error("PING 发送失败，io错误，关闭channel");
@@ -119,12 +128,17 @@ public class GatewayServerHandler extends SimpleChannelInboundHandler<ResponsePr
 
         // 客户端连接上网关（同步完离线消息才会连接）
         if(type == Constants.REQUEST_FOR_CONNECT) {
+            ClientCache clientCache = SpringBeanFactory.getBean(ClientCache.class);
             clientCache.addCache(senderId, (NioSocketChannel) ctx.channel());
+
             LOGGER.info("客户端[id:{}][name:{}]连接上服务器，并且注册到缓存中成功",senderId, senderName);
         }
 
         // 获取发送到的IM服务器管道
+        IMServerCache imServerCache = SpringBeanFactory.getBean(IMServerCache.class);
         List<NioSocketChannel> list = imServerCache.getAllChannelFromCacheAsList();
+
+        RouteHandler routeHandler = SpringBeanFactory.getBean(RouteHandler.class);
         NioSocketChannel channel = routeHandler.selectIMServer(list);
 
         // 客户端刚刚上线的时候，用他自己已经读取的最后的msgId来向im服务器要求后续的离线消息 TODO：im服务器要配置一次最多回传几条,然后客户端会要求多次，直到回传type为lack而不是back
@@ -166,7 +180,10 @@ public class GatewayServerHandler extends SimpleChannelInboundHandler<ResponsePr
      */
     private boolean resent(RequestProtocol.Request request) {
         // 获取发送到的IM服务器管道
+        IMServerCache imServerCache = SpringBeanFactory.getBean(IMServerCache.class);
         List<NioSocketChannel> list = imServerCache.getAllChannelFromCacheAsList();
+
+        RouteHandler routeHandler = SpringBeanFactory.getBean(RouteHandler.class);
         NioSocketChannel channel = routeHandler.selectIMServer(list);
         AtomicBoolean state = new AtomicBoolean(true);
         channel.writeAndFlush(request).addListener(future -> {
