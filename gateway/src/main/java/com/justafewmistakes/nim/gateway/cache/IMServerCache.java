@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 /**
  * Duty: 用于缓存现在已经连接上的服务端与对应的管道
@@ -51,12 +52,13 @@ public class IMServerCache {
      */
     public void addCache(String IMServer, NioSocketChannel channel) {
         // TODO:锁
-        synchronized (IMServerCache.class) {
+//        synchronized (IMServerCache.class) {
             IMCacheSN.put(IMServer, channel);
             IMCacheNS.put(channel, IMServer);
-        }
+//        }
     }
 
+    // TODO:!!!!!得改成全部管道断开再重连
     /**
      * 更新目前连接的IM服务器的缓存，如果已经存在的不变，不存在的断开，新增的去重连
      */
@@ -115,7 +117,7 @@ public class IMServerCache {
      */
     public boolean removeByChannel(NioSocketChannel channel) {
         // TODO:锁
-        synchronized (IMServerCache.class) {
+//        synchronized (IMServerCache.class) {
             try {
                 if(IMCacheNS.get(channel) == null) return false;
                 String imSever = IMCacheNS.get(channel);
@@ -126,7 +128,7 @@ public class IMServerCache {
                 LOGGER.error("获取缓存失败");
             }
             return true;
-        }
+//        }
     }
 
     /**
@@ -157,5 +159,9 @@ public class IMServerCache {
     public void reconnect() {
         List<String> imServerList = getAllIMServer();
         updateCache(imServerList);
+    }
+
+    public List<NioSocketChannel> tempGet() {
+        return new ArrayList<>(IMCacheSN.asMap().values());
     }
 }

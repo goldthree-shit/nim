@@ -14,6 +14,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -37,6 +38,9 @@ public class GatewayServer {
 
     private EventLoopGroup boss = new NioEventLoopGroup();
     private EventLoopGroup work = new NioEventLoopGroup();
+
+//    @Value("${nim.port}")
+//    private int port;
 
     /**
      * 启动网关服务端

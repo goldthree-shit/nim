@@ -104,6 +104,8 @@ public class GatewayServerHandler extends SimpleChannelInboundHandler<ResponsePr
 
         int type = msg.getType();
 
+        LOGGER.info("网关客户端收到消息"+msg.toString());
+
         if(type == Constants.PONG) return;
         if(type == Constants.PING) {
             HearBeatUtil hearBeatUtil = SpringBeanFactory.getBean(HearBeatUtil.class);

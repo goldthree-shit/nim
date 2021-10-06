@@ -4,28 +4,23 @@ import com.justafewmistakes.nim.common.constant.Constants;
 import com.justafewmistakes.nim.common.protobuf.RequestProtocol;
 import com.justafewmistakes.nim.common.util.NtpUtil;
 import com.justafewmistakes.nim.common.util.PrefixUtil;
-import com.justafewmistakes.nim.gateway.cache.ClientCache;
 import com.justafewmistakes.nim.gateway.cache.IMServerCache;
 import com.justafewmistakes.nim.gateway.config.AppConfiguration;
 import com.justafewmistakes.nim.gateway.kit.NacosClient;
 import com.justafewmistakes.nim.gateway.netty.init.GatewayClientChannelHandleInitializer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import org.apache.commons.net.ntp.NTPUDPClient;
-import org.apache.commons.net.ntp.TimeInfo;
-import org.apache.commons.net.ntp.TimeStamp;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -40,6 +35,8 @@ import java.util.concurrent.*;
 public class GatewayClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayClient.class);
+
+    private EventLoopGroup group = new NioEventLoopGroup(0, new DefaultThreadFactory("nim-work"));
 
     @Autowired
     private AppConfiguration appConfiguration; //该网关的所有配置信息
@@ -83,14 +80,14 @@ public class GatewayClient {
                     .setGroupId(-1)
                     .setDestination(-1) //-1
                     .setRequestName("")
-                    .setTransit(appConfiguration.getGatewayIp() + ":" + appConfiguration.getGatewayPort()) //确认连接要让IM服务器也记录管道消息
+                    .setTransit("") //确认连接要让IM服务器也记录管道消息
                     .setRequestId(-1)
                     .setSendTime(NtpUtil.getNtpTime())
-                    .setType(Constants.REQUEST_FOR_CONNECT) //TODO:1是确认连接，这里等一下去做一个常量枚举，并且确认连接要让IM服务器也记录管道消息
-                    .setRequestMsg(appConfiguration.getGatewayName() + "已经连接")
+                    .setType(Constants.REQUEST_FOR_CONNECT)
+                    .setRequestMsg(appConfiguration.getGatewayName())
                     .build();
             ChannelFuture future = channel.getValue().writeAndFlush(claim);
-            future.addListener(channelFuture -> System.out.println("成功连接上该服务器" + channel.getKey()));
+            future.addListener(channelFuture -> LOGGER.info("成功连接上该服务器" + channel.getKey()));
         }
     }
 
@@ -103,10 +100,11 @@ public class GatewayClient {
         //FIXME：是否该锁有必要
         synchronized (GatewayClient.class) { //在这里上把锁，防止监听到nacos的变化的时候，和暂时未知的其他的变化监听变更一起进行，导致出错
             Bootstrap bootstrap = new Bootstrap();
-            NioEventLoopGroup group = new NioEventLoopGroup();
+//            NioEventLoopGroup group = new NioEventLoopGroup();
             bootstrap.group(group)
                     .channel(NioSocketChannel.class)
-                    .handler(new GatewayClientChannelHandleInitializer());
+                    .handler(new GatewayClientChannelHandleInitializer()); //FIXME:暂时换成cim的
+//                    .handler(new CIMClientHandleInitializer());
             List<Callable<Boolean>> list = new ArrayList<>();
             for (String IMServer : allIMServerAddr) {
                 if(imServerCache.alreadyContain(IMServer)) continue;

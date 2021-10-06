@@ -43,10 +43,10 @@ public class ClientCache {
      */
     public void addCache(Long clientId, NioSocketChannel channel) {
         // TODO:锁
-        synchronized (ClientCache.class) {
+//        synchronized (ClientCache.class) {
             clientCacheLN.put(clientId, channel);
             clientCacheNL.put(channel, clientId);
-        }
+//        }
     }
 
     /**
@@ -54,12 +54,12 @@ public class ClientCache {
      */
     public void removeCache(Long clientId) {
         //TODO:锁
-        synchronized (ClientCache.class) {
+//        synchronized (ClientCache.class) {
             NioSocketChannel channel = clientCacheLN.asMap().get(clientId);
             clientCacheLN.invalidate(clientId);
             clientCacheNL.invalidate(channel);
             if(channel != null) channel.close();
-        }
+//        }
     }
 
     /**
@@ -67,13 +67,13 @@ public class ClientCache {
      */
     public Long removeCache(NioSocketChannel channel) {
         //TODO:锁
-        synchronized (ClientCache.class) {
+//        synchronized (ClientCache.class) {
             Long clientId = clientCacheNL.asMap().get(channel);
             clientCacheNL.invalidate(channel);
             clientCacheLN.invalidate(clientId);
             if(channel != null) channel.close();
             return clientId;
-        }
+//        }
     }
 
     /**

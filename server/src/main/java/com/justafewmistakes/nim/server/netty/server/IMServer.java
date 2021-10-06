@@ -11,6 +11,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -33,6 +34,9 @@ public class IMServer {
     private EventLoopGroup boss = new NioEventLoopGroup();
     private EventLoopGroup work = new NioEventLoopGroup();
 
+//    @Value("${nim.port}")
+//    private int port;
+
     /**
      * 启动im服务器
      */
@@ -43,8 +47,8 @@ public class IMServer {
                 .channel(NioServerSocketChannel.class)
                 .localAddress(new InetSocketAddress(Integer.parseInt(appConfiguration.getImServerPort())))
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childHandler(new IMServerChannelHandlerInitializer());
-
+                .childHandler(new IMServerChannelHandlerInitializer());  //FIXME:暂时换成cim的
+//                .childHandler(new CIMServerInitializer());
         ChannelFuture future = bootstrap.bind().sync();
         if(future.isSuccess()) {
             LOGGER.info("im服务器启动成功");

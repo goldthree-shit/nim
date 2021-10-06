@@ -7,6 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Duty: 缓存连接上该im服务器的全部网关
  *
@@ -31,10 +35,10 @@ public class GatewayCache {
      */
     public void addCache(String gateway, NioSocketChannel channel) {
         // TODO:锁
-        synchronized (GatewayCache.class) {
+//        synchronized (GatewayCache.class) {
             gatewayCacheSN.put(gateway, channel);
             gatewayCacheNS.put(channel, gateway);
-        }
+//        }
     }
 
     /**
@@ -44,14 +48,14 @@ public class GatewayCache {
      */
     public boolean removeCacheByChannel(NioSocketChannel channel) {
         // TODO:锁
-        synchronized (GatewayCache.class) {
+//        synchronized (GatewayCache.class) {
             String gateway = gatewayCacheNS.asMap().get(channel);
             if(gateway == null) return false;
             gatewayCacheNS.invalidate(channel);
             gatewayCacheSN.invalidate(gateway);
             if(channel != null) channel.close();
             return true;
-        }
+//        }
     }
 
     /**
@@ -63,6 +67,10 @@ public class GatewayCache {
         String gateway = gatewayCacheNS.asMap().get(channel);
         removeCacheByChannel(channel);
         return gateway;
+    }
+
+    public List<NioSocketChannel> tempGet() {
+        return new ArrayList<>(gatewayCacheSN.asMap().values());
     }
 
 }

@@ -1,4 +1,4 @@
-package com.justafewmistakes.nim.route.exception;
+package com.justafewmistakes.nim.gateway.exception;
 
 import com.justafewmistakes.nim.common.api.CommonResult;
 import com.justafewmistakes.nim.common.excpetion.IMException;

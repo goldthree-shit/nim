@@ -80,7 +80,7 @@ public class NacosClient {
                             if(instance.isHealthy()) PreIMServerList.add(instance.getMetadata().get("im_addr")); //现在获取的是有前缀的
                         }
                         for(String PreIMServer : PreIMServerList) IMServerList.add(PrefixUtil.parsePreGatewayToGateWay(PreIMServer));
-                        imServerCache.updateCache(IMServerList);
+                        imServerCache.updateCache(IMServerList); //FIXME：这里更新要用的是全删掉后更新全部
                     }
                 }
             });

@@ -29,7 +29,7 @@ public class IMServerHeartBeatHandler implements HeartBeatHandler {
     private GatewayCache gatewayCache; //网关连接缓存，用于让客户端下线
 
     // 11秒一次读空闲
-    private static final int tenSecond = 11000;
+    private static final int tenSecond = 13000;
 
     /**
      * 网关服务端的心跳处理器，用于多次读空闲后断开连接

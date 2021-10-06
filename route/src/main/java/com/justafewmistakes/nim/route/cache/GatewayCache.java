@@ -65,11 +65,11 @@ public class GatewayCache {
      * 当不可达/nacos服务器有变化的时候，去更新缓存
      */
     public void updateCache(List<String> gatewayList) {
-        synchronized (GatewayCache.class) {
+//        synchronized (GatewayCache.class) {
             cache.invalidateAll();
             for(String gateway : gatewayList) {
                 addCache(PrefixUtil.parsePreGatewayToGateWay(gateway));
             }
-        }
+//        }
     }
 }

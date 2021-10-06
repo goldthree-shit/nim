@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
 /**
  * Duty:路由作为客户端的时候的处理器
@@ -38,11 +39,12 @@ import java.util.List;
  * @author justafewmistakes
  * Date: 2021/09
  */
-//@ChannelHandler.Sharable
-public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponseProtocol.Response> {
+@ChannelHandler.Sharable
+//public class gatewaywayClientHandler extends SimpleChannelInboundHandler<CIMResponseProto.CIMResProtocol> {
+public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponseProtocol.Response> { //TODO:!!!!记得换掉
 
     private final static Logger LOGGER = LoggerFactory.getLogger(GatewayClientHandler.class);
-
+    //TODO:尝试把缓存改为concurrentHashMap
 //    private final HearBeatUtil hearBeatUtil = SpringBeanFactory.getBean(HearBeatUtil.class); //心跳包创建工具,不能这么创建，因为netty生成的比这个早
 
 //    private final IMServerCache imServerCache = SpringBeanFactory.getBean(IMServerCache.class); //用于管道不可用时，删除管道与获取连接向im服务器的管道
@@ -54,6 +56,13 @@ public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponsePr
      */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        // TODO:这个是为了检测到底为什么不活跃了（读空闲但是写不空闲）
+        IMServerCache imServerCache = SpringBeanFactory.getBean(IMServerCache.class);
+        List<NioSocketChannel> list = imServerCache.tempGet();
+        for(NioSocketChannel channel : list) {
+            LOGGER.error("一个管道" + channel.toString() + channel.isActive());
+        }
+
         if(evt instanceof IdleStateEvent) {
             IdleStateEvent event = (IdleStateEvent) evt;
 
@@ -61,9 +70,19 @@ public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponsePr
             if(event.state() == IdleState.WRITER_IDLE) {
 
                 LOGGER.warn("客户端写空闲,发送ping包保活");
-                HearBeatUtil hearBeatUtil = SpringBeanFactory.getBean(HearBeatUtil.class);
-                RequestProtocol.Request ping = hearBeatUtil.Ping();
-                ctx.channel().writeAndFlush(ping).addListener((ChannelFutureListener) future -> {
+//                HearBeatUtil hearBeatUtil = SpringBeanFactory.getBean(HearBeatUtil.class);
+//                RequestProtocol.Request ping = hearBeatUtil.Ping();
+                ctx.channel().writeAndFlush(RequestProtocol.Request.newBuilder()
+                        .setRequestId(-1)
+                        .setGroupId(-1)
+                        .setRequestName("")
+                        .setRequestMsg("PING")
+                        .setType(Constants.PING)
+                        .setDestination(-1)
+                        .setTransit("")
+//                        .setSendTime(NtpUtil.getNtpTime())
+                        .setRequestMsgId(0)
+                        .build()).addListener((ChannelFutureListener) future -> {
                     if(!future.isSuccess()) {
                         LOGGER.error("客户端发送心跳失败，关闭channel");
                         future.channel().close();
@@ -76,14 +95,11 @@ public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponsePr
     }
 
     /**
-     * 管道首次活跃，FIXME：刚刚在postconstruct之后生成管道时，springbeanfactory里面的context为null会报错
+     * 管道首次活跃
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        // TODO:看看这个是不是能正常获取名字（这个是顺序问题,不能，他是先）
-//        LOGGER.error("看看这个是不是能正常获取名字（这个是顺序问题,不能，他是先）");
         if(ctx.channel() instanceof NioSocketChannel) {
-//            IMServerCache imServerCache = SpringBeanFactory.getBean(IMServerCache.class);
             LOGGER.info("网关客户端连接到不知道哪个im服务器成功,管道首次活跃触发");
         }
     }
@@ -95,12 +111,12 @@ public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponsePr
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
         LOGGER.error("temp网关断开连接temp");
-        if(ctx.channel() instanceof NioSocketChannel) {
-            // 如果是在这里掉线（说明是服务器好的，但是管道断开了），而不是从nacos上关闭服务器，就需要执行重连
-            IMServerCache imServerCache = SpringBeanFactory.getBean(IMServerCache.class);
-            boolean isRemove = imServerCache.removeByChannel((NioSocketChannel) ctx.channel()); //从缓存中移除管道
-            if(isRemove) imServerCache.reconnect();
-        }
+//        if(ctx.channel() instanceof NioSocketChannel) {
+//            // 如果是在这里掉线（说明是服务器好的，但是管道断开了），而不是从nacos上关闭服务器，就需要执行重连
+//            IMServerCache imServerCache = SpringBeanFactory.getBean(IMServerCache.class);
+//            boolean isRemove = imServerCache.removeByChannel((NioSocketChannel) ctx.channel()); //从缓存中移除管道
+//            if(isRemove) imServerCache.reconnect();
+//        }
 
 
         super.channelInactive(ctx);
@@ -112,9 +128,10 @@ public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponsePr
      */
     @Override
     @SuppressWarnings("all")
-    protected void channelRead0(ChannelHandlerContext ctx, ResponseProtocol.Response msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, ResponseProtocol.Response msg) throws Exception { //TODO:!!!!记得换掉
+//    protected void channelRead0(ChannelHandlerContext ctx, CIMResponseProto.CIMResProtocol msg) throws Exception {
         LOGGER.error("网关收到【{}】",msg.toString());
-        //TODO: 网关作为服务端的时候（这里是客户端，灵感）,需要将信息写入数据库
+
         int type = msg.getType();
 
         // 是pong包不管，他也不可能收到ping包与确认连接包
@@ -174,4 +191,5 @@ public class GatewayClientHandler extends SimpleChannelInboundHandler<ResponsePr
             return ;
         }
     }
+
 }
